@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
+import localFont from "next/font/local";
 
-const AA_Stetica = localFont({
-  src: "",
-  variable: "--font-stetica"
+const AA_Stetica_Bold = localFont({
+  src: "../public/fonts/AA_Stetica_Bold.otf",
+  variable: "--font-stetica-bold",
+});
+
+const AA_Stetica_Regular = localFont({
+  src: "../public/fonts/AA_Stetica_Regular.otf",
+  variable: "--font-stetica-regular",
 });
 
 export const metadata: Metadata = {
@@ -19,11 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${AA_Stetica.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${AA_Stetica_Bold.variable} ${AA_Stetica_Regular.variable} antialiased`}>{children}</body>
     </html>
   );
 }
