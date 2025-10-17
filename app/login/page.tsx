@@ -2,15 +2,21 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { ILoginForm } from "@/app/types";
+import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 
 export default function Login() {
-  const [identifier, setIdentifier] = useState("");
-  const [password, setPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
   const [showPassword, setShowPassword] = useState(false);
+  const onSubmit: SubmitHandler<ILoginForm> = (data) => console.log(data);
 
   return (
-    <div className="flex pt-10 lg:min-h-screen bg-[#FFF] relative font-[family-name:var(--font-stetica-bold)]">
-      <div className="flex flex-1 justify-center items-center bg-white px-6 sm:px-12 md:px-16 lg:pl-18 lg:pr-20">
+    <div className="flex py-10 lg:p-0 lg:min-h-screen bg-[#FFF] relative font-[family-name:var(--font-stetica-bold)]">
+      <div className="flex flex-1 justify-center lg:justify-start items-center bg-white px-6 sm:px-12 md:px-16 lg:pl-18 lg:pr-20">
         <div className="max-w-lg w-full lg:w-[450px]">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-12 h-12 rounded-full bg-[#3366CC] flex items-center justify-center text-white">
@@ -21,27 +27,31 @@ export default function Login() {
           <h4 className="text-[30px] text-[#3366CC] mb-6">
             Вход в личный кабинет
           </h4>
-          <form className="space-y-5">
+          <form
+            onSubmit={handleSubmit(onSubmit as SubmitHandler<FieldValues>)}
+            className="space-y-5"
+          >
             <label className="block">
               <span className="text-[20px] text-gray-700">
                 Номер телефона / почта
               </span>
               <input
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
+                {...register("identifier", {
+                  required: "Это поле является обязательным",
+                })}
                 placeholder="Введите номер телефона / почту"
                 className="font-[family-name:var(--font-stetica-regular)] mt-2 block w-full rounded-lg border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#3366CC]"
                 inputMode="text"
                 autoComplete="username"
               />
             </label>
-
             <label className="block relative">
               <span className="text-[20px] text-gray-700">Пароль</span>
               <div className="relative mt-2">
                 <input
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password", {
+                    required: "Это поле является обязательным",
+                  })}
                   placeholder="Введите пароль"
                   className="font-[family-name:var(--font-stetica-regular)] block w-full rounded-lg border border-gray-200 px-4 py-3 pr-16 focus:outline-none focus:ring-2 focus:ring-[#3366CC]"
                   type={showPassword ? "text" : "password"}
@@ -59,7 +69,6 @@ export default function Login() {
                 </button>
               </div>
             </label>
-
             <div className="w-full flex flex-row justify-between font-[family-name:var(--font-stetica-regular)]">
               <div className="flex items-center gap-2">
                 <input
