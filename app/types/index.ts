@@ -1,7 +1,6 @@
 export interface IRegisterForm {
   name: string;
-  phone: string;
-  email: string;
+  phone_number: string;
   password: string;
   confirmPassword: string;
 }

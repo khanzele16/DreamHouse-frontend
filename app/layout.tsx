@@ -1,10 +1,20 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
+import { StoreProvider } from "@/app/shared/redux/StoreProvider";
+import { ThemeProvider } from "@/app/shared/contexts/ThemeContext";
+import { Footer } from "@/app/components/Footer";
+import { Header } from "@/app/components/Header";
+import { AuthChecker } from "@/app/components/AuthChecker";
 
 const AA_Stetica_Bold = localFont({
   src: "../public/fonts/AA_Stetica_Bold.otf",
   variable: "--font-stetica-bold",
+});
+
+const AA_Stetica_Medium = localFont({
+  src: "../public/fonts/AA_Stetica_Medium.otf",
+  variable: "--font-stetica-medium",
 });
 
 const AA_Stetica_Regular = localFont({
@@ -23,8 +33,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${AA_Stetica_Bold.variable} ${AA_Stetica_Regular.variable} antialiased`}>{children}</body>
+    <html lang="ru">
+      <StoreProvider>
+        <ThemeProvider>
+          <body
+            className={`${AA_Stetica_Bold.variable} ${AA_Stetica_Medium.variable} ${AA_Stetica_Regular.variable} antialiased flex flex-col min-h-screen`}
+            style={{
+              backgroundColor: "var(--bg-primary)",
+              color: "var(--text-primary)",
+            }}
+          >
+            <AuthChecker />
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </body>
+        </ThemeProvider>
+      </StoreProvider>
     </html>
   );
 }
