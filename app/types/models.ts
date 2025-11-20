@@ -9,6 +9,18 @@ export interface IDeveloper {
   logo: string;
 }
 
+export interface IDeveloperDetail extends IDeveloper {
+  cards: ICard[];
+  is_subscribed: boolean;
+}
+
+export interface IDocument {
+  id: number;
+  title: string;
+  file: string;
+  uploaded_at: string;
+}
+
 export interface IVideo {
   id: number;
   video: string;

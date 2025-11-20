@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { DetailsSection } from "@/app/card/[id]/lib/components";
 import {
@@ -8,6 +11,11 @@ import {
   translateCategory,
 } from "@/app/card/[id]/lib";
 import type { ICard } from "@/app/types/models";
+import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
+import {
+  subscribeToDeveloper,
+  unsubscribeFromDeveloper,
+} from "@/app/shared/redux/slices/developers";
 
 interface AsidePanelProps {
   card: ICard;
@@ -15,6 +23,39 @@ interface AsidePanelProps {
 }
 
 export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
+  const dispatch = useAppDispatch();
+  const { isAuth } = useAppSelector((state) => state.auth);
+  const { developers } = useAppSelector((state) => state.developers);
+
+  // Проверяем, подписан ли пользователь на этого застройщика
+  const developer = developers.find((dev) => dev.id === card.developer.id);
+  const [isSubscribed, setIsSubscribed] = useState(
+    developer?.is_subscribed || false
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubscriptionToggle = async () => {
+    if (!isAuth) {
+      alert("Войдите в систему, чтобы подписаться на застройщика");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      if (isSubscribed) {
+        await dispatch(unsubscribeFromDeveloper(card.developer.id)).unwrap();
+        setIsSubscribed(false);
+      } else {
+        await dispatch(subscribeToDeveloper(card.developer.id)).unwrap();
+        setIsSubscribed(true);
+      }
+    } catch (error) {
+      console.error("Ошибка при изменении подписки:", error);
+      alert("Не удалось изменить подписку. Попробуйте позже.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
   return (
     <aside className="lg:col-span-1">
       <div
@@ -89,14 +130,20 @@ export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
             </div>
           </div>
           <button
-            className="px-4 py-2 rounded-lg cursor-pointer"
+            onClick={handleSubscriptionToggle}
+            disabled={isLoading}
+            className="px-4 py-2 rounded-lg cursor-pointer transition-all"
             style={{
-              backgroundColor: "var(--card-bg)",
+              backgroundColor: isSubscribed
+                ? "var(--accent-primary)"
+                : "var(--card-bg)",
               border: "1px solid var(--border-color)",
-              color: "var(--text-primary)",
+              color: isSubscribed ? "white" : "var(--text-primary)",
+              opacity: isLoading ? 0.6 : 1,
+              cursor: isLoading ? "not-allowed" : "pointer",
             }}
           >
-            Подписаться
+            {isLoading ? "..." : isSubscribed ? "Отписаться" : "Подписаться"}
           </button>
         </div>
       </div>

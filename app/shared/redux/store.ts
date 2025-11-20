@@ -1,11 +1,13 @@
 import auth from "./slices/auth";
 import cards from "./slices/cards";
+import developers from "./slices/developers";
 import { configureStore } from "@reduxjs/toolkit";
 
 const store = configureStore({
   reducer: {
     auth,
     cards,
+    developers,
   },
 });
 

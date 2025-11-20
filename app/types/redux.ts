@@ -1,4 +1,4 @@
-import { ICard } from "./models";
+import { ICard, IDeveloperDetail } from "./models";
 
 export interface IUser {
     id: number;
@@ -22,4 +22,12 @@ export interface ICardsSliceState {
     searchLoading: boolean;
     error: string | null;
     isFavoritesPage: boolean;
+}
+
+export interface IDevelopersSliceState {
+    developers: IDeveloperDetail[];
+    currentDeveloper: IDeveloperDetail | null;
+    subscriptions: IDeveloperDetail[];
+    loading: boolean;
+    error: string | null;
 }
