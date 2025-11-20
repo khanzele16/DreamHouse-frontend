@@ -2,12 +2,24 @@ import axios from "axios";
 import { ICardsSliceState } from "@/app/types/redux";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ICard } from "@/app/types/models";
+import { ICardFilters } from "@/app/types";
 
-export const fetchCards = createAsyncThunk<ICard[]>(
+export const fetchCards = createAsyncThunk<ICard[], ICardFilters | undefined>(
   "cards/fetchCards",
-  async (_, { rejectWithValue }) => {
+  async (filters, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get<ICard[]>("https://api.dreamhouse05.com/api/cards/");
+      const params = new URLSearchParams();
+      
+      if (filters) {
+        Object.entries(filters).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            params.append(key, String(value));
+          }
+        });
+      }
+      
+      const url = `https://api.dreamhouse05.com/api/cards/${params.toString() ? `?${params.toString()}` : ''}`;
+      const { data } = await axios.get<ICard[]>(url);
       return data;
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: unknown }; message?: string };

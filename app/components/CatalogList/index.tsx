@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Filter } from "@/app/components/Filter";
 
 interface ICatalogListProps {
   List: ICatalogListItem[];
@@ -31,7 +30,6 @@ export const CatalogList = ({ List }: ICatalogListProps) => {
               scrollbarColor: "var(--border-color) transparent",
             }}
           >
-            <Filter />
             {List.map((item, index) => {
               const isActive = item.query === catalogItem?.query;
               return (
@@ -75,7 +73,6 @@ export const CatalogList = ({ List }: ICatalogListProps) => {
 
         <div className="hidden md:block">
           <div className="w-full flex gap-x-3 items-center content-center justify-start">
-            <Filter />
             {List.map((item, index) => {
               const isActive = item.query === catalogItem?.query;
               return (

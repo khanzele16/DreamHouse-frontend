@@ -1,10 +1,12 @@
 "use client";
 
 import { CardItemPreview } from "@/app/components/CardItemPreview";
-import { Suspense, useEffect } from "react";
-import { CatalogList } from "@/app/components/CatalogList";
+import { Suspense, useEffect, useState } from "react";
+// import { CatalogList } from "@/app/components/CatalogList";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { fetchCards } from "@/app/shared/redux/slices/cards";
+import { ICardFilters } from "@/app/types";
+import { Filter } from "@/app/components/Filter";
 
 const ListCatalog = [
   { name: "Частные дома", query: "private-houses" },
@@ -17,10 +19,15 @@ const ListCatalog = [
 export default function Home() {
   const dispatch = useAppDispatch();
   const { cards, loading, error } = useAppSelector((state) => state.cards);
+  const [currentFilters, setCurrentFilters] = useState<ICardFilters>({});
 
   useEffect(() => {
-    dispatch(fetchCards());
-  }, [dispatch]);
+    dispatch(fetchCards(currentFilters));
+  }, [dispatch, currentFilters]);
+
+  const handleApplyFilters = (filters: ICardFilters) => {
+    setCurrentFilters(filters);
+  };
 
   return (
     <div
@@ -31,9 +38,20 @@ export default function Home() {
       }}
     >
       <div className="w-full max-w-[1300px] flex flex-col content-center gap-y-6 sm:gap-y-[25px] px-4 sm:px-6 lg:px-8 pt-2 pb-6 flex-grow">
-        <Suspense>
-          <CatalogList List={ListCatalog} />
-        </Suspense>
+        <div className="flex items-center gap-3">
+          {/* CatalogList temporarily commented out */}
+          <div className="flex-1">
+            <Suspense>
+              {/* <CatalogList List={ListCatalog} /> */}
+            </Suspense>
+          </div>
+          <div className="flex-shrink-0">
+            <Filter 
+              onApplyFilters={handleApplyFilters} 
+              currentFilters={currentFilters}
+            />
+          </div>
+        </div>
 
         {loading && (
           <div className="text-center py-10 text-[#999999]">
