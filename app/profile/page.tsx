@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { logout, fetchUser } from "@/app/shared/redux/slices/auth";
+import ProtectedRoute from "@/app/components/ProtectedRoute";
 
-export default function Profile() {
+function ProfileContent() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user, isAuth } = useAppSelector((state) => state.auth);
@@ -109,11 +110,10 @@ export default function Profile() {
               aria-hidden
             >
               {avatarDataUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={avatarDataUrl}
-                  alt="Аватар"
-                  className="object-cover w-full h-full"
+                <img 
+                  src={avatarDataUrl} 
+                  alt="Avatar" 
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <span>
@@ -124,7 +124,6 @@ export default function Profile() {
                 </span>
               )}
             </div>
-
             <button
               type="button"
               onClick={triggerFile}
@@ -304,5 +303,13 @@ export default function Profile() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Profile() {
+  return (
+    <ProtectedRoute>
+      <ProfileContent />
+    </ProtectedRoute>
   );
 }

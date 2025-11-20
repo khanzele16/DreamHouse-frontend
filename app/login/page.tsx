@@ -8,8 +8,9 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { login, clearError, fetchUser } from "@/app/shared/redux/slices/auth";
 import { useTheme } from "@/app/shared/contexts/ThemeContext";
+import PublicRoute from "@/app/components/PublicRoute";
 
-export default function Login() {
+function LoginContent() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { loading, error, isAuth } = useAppSelector((state) => state.auth);
@@ -47,13 +48,6 @@ export default function Login() {
       dispatch(clearError());
     };
   }, [dispatch]);
-
-  // Если пользователь уже авторизован, перенаправляем на главную
-  useEffect(() => {
-    if (isAuth) {
-      router.push("/");
-    }
-  }, [isAuth, router]);
 
   return (
     <div
@@ -368,5 +362,13 @@ export default function Login() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function Login() {
+  return (
+    <PublicRoute>
+      <LoginContent />
+    </PublicRoute>
   );
 }

@@ -4,28 +4,16 @@ import { CardItemPreview } from "../components/CardItemPreview";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../shared/redux/hooks";
 import { fetchFavoriteCards } from "../shared/redux/slices/cards";
-import { useRouter } from "next/navigation";
 import type { ICard } from "../types/models";
+import ProtectedRoute from "../components/ProtectedRoute";
 
-export default function Favorite() {
+function FavoriteContent() {
   const dispatch = useAppDispatch();
-  const router = useRouter();
   const { cards, loading, error } = useAppSelector((state) => state.cards);
-  const { isAuth } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // Проверяем авторизацию
-    if (!isAuth) {
-      router.push("/login");
-      return;
-    }
-
     dispatch(fetchFavoriteCards());
-  }, [dispatch, isAuth, router]);
-
-  if (!isAuth) {
-    return null;
-  }
+  }, [dispatch]);
 
   return (
     <div
@@ -83,5 +71,13 @@ export default function Favorite() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Favorite() {
+  return (
+    <ProtectedRoute>
+      <FavoriteContent />
+    </ProtectedRoute>
   );
 }

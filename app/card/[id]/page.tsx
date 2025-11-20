@@ -9,7 +9,6 @@ import { BackButton } from "@/app/card/[id]/lib/components";
 import { ImageCarousel } from "./lib/ImageCarousel";
 import { CardInfo } from "./lib/CardInfo";
 import { AsidePanel } from "./lib/AsidePanel";
-import { MapWidget } from "./lib/MapWidget";
 
 export default function CardDetailPage() {
   const params = useParams();
@@ -89,7 +88,6 @@ export default function CardDetailPage() {
       <div className="max-w-[1300px] mx-auto">
         <BackButton onClick={() => router.back()} />
       </div>
-
       <div className="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div

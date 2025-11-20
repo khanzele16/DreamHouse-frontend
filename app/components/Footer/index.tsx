@@ -10,7 +10,7 @@ const footerList = [
   },
   {
     name: "Избранное",
-    url: "/favorites",
+    url: "/favorite",
   },
   {
     name: "Мой профиль",

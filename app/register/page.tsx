@@ -10,8 +10,9 @@ import {
   register as registerUser,
   clearError,
 } from "@/app/shared/redux/slices/auth";
+import PublicRoute from "@/app/components/PublicRoute";
 
-export default function Register() {
+function RegisterContent() {
   const dispatch = useAppDispatch();
   const router = useRouter();
   const { loading, error, isAuth } = useAppSelector((state) => state.auth);
@@ -53,12 +54,6 @@ export default function Register() {
       dispatch(clearError());
     };
   }, [dispatch]);
-
-  useEffect(() => {
-    if (isAuth) {
-      router.push("/");
-    }
-  }, [isAuth, router]);
 
   return (
     <div className="flex py-10 lg:p-0 lg:min-h-screen bg-[#FFF] relative font-[family-name:var(--font-stetica-bold)]">
@@ -261,5 +256,13 @@ export default function Register() {
         <path d="M62.6109 201L0 0H116L62.6109 201Z" fill="#FFC860" />
       </svg>
     </div>
+  );
+}
+
+export default function Register() {
+  return (
+    <PublicRoute>
+      <RegisterContent />
+    </PublicRoute>
   );
 }
