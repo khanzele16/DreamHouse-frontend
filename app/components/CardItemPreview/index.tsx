@@ -5,14 +5,42 @@ import Link from "next/link";
 import { ICard } from "@/app/types/models";
 import { useAppDispatch } from "@/app/shared/redux/hooks";
 import { toggleFavorite } from "@/app/shared/redux/slices/cards";
+import { CSSProperties, ReactElement } from "react";
 
 interface CardItemPreviewProps {
   card: ICard;
 }
 
-export function CardItemPreview({ card }: CardItemPreviewProps) {
+type CellProps = {
+  ariaAttributes: { "aria-colindex": number; role: "gridcell" };
+  columnIndex: number;
+  rowIndex: number;
+  style: CSSProperties;
+  cards: ICard[];
+};
+
+export const CellComponent: React.FC<CellProps> = ({
+  ariaAttributes,
+  columnIndex,
+  rowIndex,
+  style,
+  cards,
+}) => {
+  const index = rowIndex * 2 + columnIndex;
+  const card = cards[index];
+
+  if (!card) return null;
+
+  return (
+    <div style={style} {...ariaAttributes}>
+      <CardItemPreview card={card} />
+    </div>
+  );
+};
+
+function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
   const dispatch = useAppDispatch();
-  
+
   const formattedPrice = new Intl.NumberFormat("ru-RU").format(
     parseFloat(card.price)
   );
@@ -24,7 +52,9 @@ export function CardItemPreview({ card }: CardItemPreviewProps) {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    dispatch(toggleFavorite({ id: card.id, is_favorite: card.is_favorite || false }));
+    dispatch(
+      toggleFavorite({ id: card.id, is_favorite: card.is_favorite || false })
+    );
   };
 
   return (
@@ -38,7 +68,9 @@ export function CardItemPreview({ card }: CardItemPreviewProps) {
       <button
         className="cursor-pointer absolute top-2 right-2 sm:top-3 sm:right-3 lg:top-4 lg:right-4 p-1.5 sm:p-2 rounded-full bg-black/30 hover:bg-black/50 transition-all duration-200 backdrop-blur-sm z-20"
         onClick={handleFavoriteClick}
-        aria-label={card.is_favorite ? "Удалить из избранного" : "Добавить в избранное"}
+        aria-label={
+          card.is_favorite ? "Удалить из избранного" : "Добавить в избранное"
+        }
       >
         <svg
           className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7"
@@ -55,116 +87,129 @@ export function CardItemPreview({ card }: CardItemPreviewProps) {
       </button>
 
       <Link href={`/card/${card.id}`} className="block flex flex-col h-full">
-          <div className="relative w-full aspect-[16/10] sm:aspect-[5/3]">
-            <Image
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
-              className="object-cover"
-              src={mainImage}
-              alt={card.title}
-            />
-          </div>
+        <div className="relative w-full aspect-[16/10] sm:aspect-[5/3]">
+          <Image
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
+            className="object-cover"
+            src={mainImage}
+            alt={card.title}
+          />
+        </div>
 
-          <div className="w-full flex flex-col gap-y-1 sm:gap-y-[5px] px-4 sm:px-5 lg:px-[25px] py-3 sm:py-4 lg:py-[15px] flex-grow">
-            <div className="w-full flex flex-row justify-between items-center gap-x-2 sm:gap-x-3">
-              <p
-                className="text-lg sm:text-xl lg:text-[25px] leading-tight"
-                style={{
-                  color: "var(--accent-primary)",
-                  transition: "color 0.3s ease",
-                }}
-              >
-                {formattedPrice} ₽
-                <span
-                  className="text-sm sm:text-base lg:text-[20px]"
-                  style={{
-                    color: "var(--text-secondary)",
-                    transition: "color 0.3s ease",
-                  }}
-                >
-                  / {card.area} м²
-                </span>
-              </p>
-              <div className="flex flex-row items-center gap-x-2 sm:gap-x-3 flex-shrink-0">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (typeof window !== 'undefined') {
-                      window.location.href = `tel:${card.owner}`;
-                    }
-                  }}
-                  aria-label="Позвонить"
-                  className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full flex items-center justify-center cursor-pointer"
-                  style={{ backgroundColor: 'var(--bg-secondary)' }}
-                >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="stroke-current"
-                    style={{ color: 'var(--accent-primary)' }}
-                  >
-                    <path
-                      d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3 5.18 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.72c.12.99.44 1.95.94 2.78a2 2 0 0 1-.45 2.11L9.91 11.09a16 16 0 0 0 6 6l1.38-1.38a2 2 0 0 1 2.11-.45c.83.5 1.79.82 2.78.94A2 2 0 0 1 22 16.92z"
-                      stroke="currentColor"
-                      strokeWidth="1.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      fill="none"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-
+        <div className="w-full flex flex-col gap-y-1 sm:gap-y-[5px] px-4 sm:px-5 lg:px-[25px] py-3 sm:py-4 lg:py-[15px] flex-grow">
+          <div className="w-full flex flex-row justify-between items-center gap-x-2 sm:gap-x-3">
             <p
-              className="text-lg sm:text-xl lg:text-[25px] line-clamp-1 leading-tight"
+              className="text-lg sm:text-xl lg:text-[25px] leading-tight"
               style={{
-                color: "var(--text-primary)",
+                color: "var(--accent-primary)",
                 transition: "color 0.3s ease",
               }}
             >
-              {card.title}
+              {formattedPrice} ₽
+              <span
+                className="text-sm sm:text-base lg:text-[20px]"
+                style={{
+                  color: "var(--text-secondary)",
+                  transition: "color 0.3s ease",
+                }}
+              >
+                / {card.area} м²
+              </span>
             </p>
-
-            <div className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-              <span className="mr-3">Комнат: <strong style={{color:'var(--text-primary)'}}>{card.rooms}</strong></span>
-              <span>Этажей: <strong style={{color:'var(--text-primary)'}}>{card.floors_total}</strong></span>
-            </div>
-
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-x-2 mt-auto pt-2">
-              <div className="flex flex-row items-center gap-x-1 sm:gap-x-[4px] flex-1 min-w-0">
+            <div className="flex flex-row items-center gap-x-2 sm:gap-x-3 flex-shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (typeof window !== "undefined") {
+                    window.location.href = `tel:${card.owner}`;
+                  }
+                }}
+                aria-label="Позвонить"
+                className="w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11 rounded-full flex items-center justify-center cursor-pointer"
+                style={{ backgroundColor: "var(--bg-secondary)" }}
+              >
                 <svg
-                  className="w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] lg:w-[18px] lg:h-[18px] flex-shrink-0"
-                  viewBox="0 0 22 22"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
+                  className="stroke-current"
+                  style={{ color: "var(--accent-primary)" }}
                 >
                   <path
-                    d="M11 2.0625C9.19852 2.0625 7.47082 2.77814 6.19698 4.05198C4.92314 5.32582 4.2075 7.05352 4.2075 8.855V9.35C4.4825 13.0717 7.57167 16.0646 11 19.9375C14.5796 15.895 17.7925 12.8333 17.7925 8.855C17.7925 7.05352 17.0769 5.32582 15.803 4.05198C14.5292 2.77814 12.8015 2.0625 11 2.0625ZM11 5.59167C11.6465 5.59167 12.2785 5.78344 12.816 6.14273C13.3535 6.50202 13.7724 7.01267 14.0196 7.61007C14.2668 8.20747 14.3313 8.86477 14.2048 9.49881C14.0783 10.1328 13.7666 10.7151 13.3091 11.172C12.8517 11.6288 12.2689 11.9397 11.6347 12.0653C11.0005 12.1908 10.3433 12.1255 9.74625 11.8774C9.14919 11.6294 8.63913 11.2098 8.2806 10.6718C7.92207 10.1338 7.73118 9.50153 7.73209 8.855C7.7333 7.98909 8.07814 7.15906 8.69086 6.5472C9.30358 5.93533 10.1341 5.59167 11 5.59167Z"
-                    stroke="var(--text-primary)"
-                    strokeOpacity="0.3"
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2A19.86 19.86 0 0 1 3 5.18 2 2 0 0 1 5 3h3a2 2 0 0 1 2 1.72c.12.99.44 1.95.94 2.78a2 2 0 0 1-.45 2.11L9.91 11.09a16 16 0 0 0 6 6l1.38-1.38a2 2 0 0 1 2.11-.45c.83.5 1.79.82 2.78.94A2 2 0 0 1 22 16.92z"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    fill="none"
                   />
                 </svg>
-                <p
-                  className="text-xs sm:text-sm lg:text-base font-[family-name:var(--font-stetica-regular)] line-clamp-1"
-                  style={{
-                    color: "var(--text-secondary)",
-                    opacity: 0.7,
-                    transition: "color 0.3s ease",
-                  }}
-                >
-                  {card.address}
-                </p>
-              </div>
+              </button>
             </div>
           </div>
+
+          <p
+            className="text-lg sm:text-xl lg:text-[25px] line-clamp-1 leading-tight"
+            style={{
+              color: "var(--text-primary)",
+              transition: "color 0.3s ease",
+            }}
+          >
+            {card.title}
+          </p>
+
+          <div
+            className="text-sm mt-1"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            <span className="mr-3">
+              Комнат:{" "}
+              <strong style={{ color: "var(--text-primary)" }}>
+                {card.rooms}
+              </strong>
+            </span>
+            <span>
+              Этажей:{" "}
+              <strong style={{ color: "var(--text-primary)" }}>
+                {card.floors_total}
+              </strong>
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-x-2 mt-auto pt-2">
+            <div className="flex flex-row items-center gap-x-1 sm:gap-x-[4px] flex-1 min-w-0">
+              <svg
+                className="w-[14px] h-[14px] sm:w-[16px] sm:h-[16px] lg:w-[18px] lg:h-[18px] flex-shrink-0"
+                viewBox="0 0 22 22"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M11 2.0625C9.19852 2.0625 7.47082 2.77814 6.19698 4.05198C4.92314 5.32582 4.2075 7.05352 4.2075 8.855V9.35C4.4825 13.0717 7.57167 16.0646 11 19.9375C14.5796 15.895 17.7925 12.8333 17.7925 8.855C17.7925 7.05352 17.0769 5.32582 15.803 4.05198C14.5292 2.77814 12.8015 2.0625 11 2.0625ZM11 5.59167C11.6465 5.59167 12.2785 5.78344 12.816 6.14273C13.3535 6.50202 13.7724 7.01267 14.0196 7.61007C14.2668 8.20747 14.3313 8.86477 14.2048 9.49881C14.0783 10.1328 13.7666 10.7151 13.3091 11.172C12.8517 11.6288 12.2689 11.9397 11.6347 12.0653C11.0005 12.1908 10.3433 12.1255 9.74625 11.8774C9.14919 11.6294 8.63913 11.2098 8.2806 10.6718C7.92207 10.1338 7.73118 9.50153 7.73209 8.855C7.7333 7.98909 8.07814 7.15906 8.69086 6.5472C9.30358 5.93533 10.1341 5.59167 11 5.59167Z"
+                  stroke="var(--text-primary)"
+                  strokeOpacity="0.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <p
+                className="text-xs sm:text-sm lg:text-base font-[family-name:var(--font-stetica-regular)] line-clamp-1"
+                style={{
+                  color: "var(--text-secondary)",
+                  opacity: 0.7,
+                  transition: "color 0.3s ease",
+                }}
+              >
+                {card.address}
+              </p>
+            </div>
+          </div>
+        </div>
       </Link>
     </div>
   );

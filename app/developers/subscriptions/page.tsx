@@ -5,6 +5,7 @@ import { DeveloperCard } from "@/app/components/DeveloperCard";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { fetchMySubscriptions } from "@/app/shared/redux/slices/developers";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import Link from "next/link";
 
 function SubscriptionsContent() {
   const dispatch = useAppDispatch();
@@ -75,13 +76,13 @@ function SubscriptionsContent() {
             <p className="text-lg">У вас пока нет подписок на застройщиков</p>
             <p className="mt-2">
               Перейдите в раздел{" "}
-              <a
+              <Link
                 href="/developers"
                 className="underline"
                 style={{ color: "var(--accent-primary)" }}
               >
                 Застройщики
-              </a>
+              </Link>
               , чтобы подписаться
             </p>
           </div>

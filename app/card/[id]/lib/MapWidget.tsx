@@ -15,7 +15,6 @@ export function MapWidget({ latitude, longitude, title, address }: MapWidgetProp
   useEffect(() => {
     if (!mapRef.current || typeof window === "undefined") return;
 
-    // Создаем скрипт для загрузки Яндекс.Карты
     const script = document.createElement("script");
     script.src = `https://api-maps.yandex.ru/2.1/?apikey=YOUR_API_KEY&lang=ru_RU`;
     script.type = "text/javascript";

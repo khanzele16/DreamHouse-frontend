@@ -6,6 +6,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { logout, fetchUser } from "@/app/shared/redux/slices/auth";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
+import Image from "next/image";
 
 function ProfileContent() {
   const router = useRouter();
@@ -22,14 +23,12 @@ function ProfileContent() {
   const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Загружаем данные пользователя при монтировании
   useEffect(() => {
     if (isAuth && !user) {
       dispatch(fetchUser());
     }
   }, [dispatch, isAuth, user]);
 
-  // Обновляем состояние профиля когда получаем данные пользователя
   useEffect(() => {
     if (user) {
       setProfile({
@@ -37,7 +36,6 @@ function ProfileContent() {
         phone_number: user.phone_number || "",
         password: "••••••••",
       });
-      // Если есть avatar, устанавливаем его
       if (user.avatar) {
         setAvatarDataUrl(user.avatar);
       }
@@ -96,72 +94,6 @@ function ProfileContent() {
           transition: "background-color 0.3s ease",
         }}
       >
-        {/* Аватар */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-4">
-            <div
-              className="w-[120px] h-[120px] rounded-full overflow-hidden flex items-center justify-center text-4xl font-[family-name:var(--font-stetica-bold)]"
-              style={{
-                boxShadow: "0 0 0 4px var(--accent-primary)",
-                backgroundColor: "var(--bg-secondary)",
-                color: "var(--accent-primary)",
-                transition: "all 0.3s ease",
-              }}
-              aria-hidden
-            >
-              {avatarDataUrl ? (
-                <img 
-                  src={avatarDataUrl} 
-                  alt="Avatar" 
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span>
-                  {profile.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")}
-                </span>
-              )}
-            </div>
-            <button
-              type="button"
-              onClick={triggerFile}
-              className="absolute bottom-0 right-0 rounded-full p-2 shadow-md hover:scale-105 transition-transform"
-              style={{
-                backgroundColor: "var(--card-bg)",
-                border: "2px solid var(--accent-primary)",
-                transition: "all 0.3s ease",
-              }}
-              aria-label="Загрузить аватар"
-            >
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M12 5v14M5 12h14"
-                  stroke="var(--accent-primary)"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleFile}
-            />
-          </div>
-        </div>
-
         <div className="space-y-6">
           <div>
             <label

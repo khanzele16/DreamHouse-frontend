@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { CardItemPreview } from "@/app/components/CardItemPreview";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { 
   fetchDeveloperById, 
@@ -10,6 +9,7 @@ import {
   unsubscribeFromDeveloper,
   clearCurrentDeveloper 
 } from "@/app/shared/redux/slices/developers";
+import Image from "next/image";
 
 export default function DeveloperDetailPage() {
   const params = useParams();
@@ -81,7 +81,6 @@ export default function DeveloperDetailPage() {
       }}
     >
       <div className="w-full max-w-[1300px] flex flex-col content-center gap-y-6 sm:gap-y-[25px] px-4 sm:px-6 lg:px-8 pt-6 pb-6 flex-grow">
-        {/* Шапка с информацией о застройщике */}
         <div
           className="rounded-2xl p-6 sm:p-8"
           style={{
@@ -90,7 +89,6 @@ export default function DeveloperDetailPage() {
           }}
         >
           <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Логотип */}
             <div
               className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
               style={{
@@ -99,7 +97,7 @@ export default function DeveloperDetailPage() {
               }}
             >
               {currentDeveloper.logo ? (
-                <img
+                <Image
                   src={currentDeveloper.logo}
                   alt={currentDeveloper.name}
                   className="w-full h-full object-cover"
@@ -114,7 +112,6 @@ export default function DeveloperDetailPage() {
               )}
             </div>
 
-            {/* Информация */}
             <div className="flex-1 flex flex-col gap-4 text-center sm:text-left">
               <h1
                 className="text-3xl sm:text-4xl font-[family-name:var(--font-stetica-bold)]"
@@ -206,7 +203,6 @@ export default function DeveloperDetailPage() {
           </div>
         </div>
 
-        {/* Заголовок раздела объектов */}
         <h2
           className="text-2xl sm:text-3xl font-[family-name:var(--font-stetica-bold)]"
           style={{ color: "var(--text-primary)" }}
@@ -214,8 +210,7 @@ export default function DeveloperDetailPage() {
           Объекты застройщика
         </h2>
 
-        {/* Список карточек */}
-        {currentDeveloper.cards && currentDeveloper.cards.length > 0 ? (
+        {/* {currentDeveloper.cards && currentDeveloper.cards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-[30px] w-full">
             {currentDeveloper.cards.map((card) => (
               <CardItemPreview key={card.id} card={card} />
@@ -231,7 +226,7 @@ export default function DeveloperDetailPage() {
           >
             У этого застройщика пока нет объектов
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

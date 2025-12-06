@@ -49,12 +49,10 @@ export const translateParking = (parking: string): string => {
   return translations[parking] || parking;
 };
 
-// Утилита для форматирования цены
 export const formatPrice = (price: string | number): string => {
   return new Intl.NumberFormat("ru-RU").format(parseFloat(String(price)));
 };
 
-// Утилита для проверки и получения валидного src изображения
 export const getValidImageSrc = (imageSrc: string | undefined): string => {
   return imageSrc && imageSrc.trim() !== "" ? imageSrc : "/placeholder.jpg";
 };

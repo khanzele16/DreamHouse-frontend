@@ -69,7 +69,6 @@ export function CharacteristicCard({
   );
 }
 
-// Компонент иконки местоположения
 export function LocationIcon() {
   return (
     <svg

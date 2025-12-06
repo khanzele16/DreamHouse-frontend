@@ -89,40 +89,6 @@ export const Header = () => {
               />
             </svg>
           </Link>
-
-          <nav className="hidden lg:flex items-center gap-x-6 ml-8">
-            <Link
-              href="/"
-              className={`text-sm font-medium transition-colors hover:text-[var(--accent-primary)] ${
-                pathname === "/" ? "text-[var(--accent-primary)]" : "text-[var(--text-primary)]"
-              }`}
-            >
-              Объекты
-            </Link>
-            <Link
-              href="/developers"
-              className={`text-sm font-medium transition-colors hover:text-[var(--accent-primary)] ${
-                pathname.startsWith("/developers") && pathname !== "/developers/subscriptions" 
-                  ? "text-[var(--accent-primary)]" 
-                  : "text-[var(--text-primary)]"
-              }`}
-            >
-              Застройщики
-            </Link>
-            {isAuth && (
-              <Link
-                href="/developers/subscriptions"
-                className={`text-sm font-medium transition-colors hover:text-[var(--accent-primary)] ${
-                  pathname === "/developers/subscriptions" 
-                    ? "text-[var(--accent-primary)]" 
-                    : "text-[var(--text-primary)]"
-                }`}
-              >
-                Подписки
-              </Link>
-            )}
-          </nav>
-
           <div className="flex lg:hidden items-center gap-x-3 sm:gap-x-5 flex-shrink-0">
             <svg
               className="w-[22px] h-[24px] sm:w-[24px] sm:h-[26px] cursor-pointer"

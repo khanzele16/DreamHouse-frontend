@@ -14,12 +14,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -34,16 +34,19 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
     onApplyFilters(emptyFilters);
   };
 
-  const updateFilter = (key: keyof ICardFilters, value: string | number | boolean) => {
-    setFilters(prev => ({
+  const updateFilter = (
+    key: keyof ICardFilters,
+    value: string | number | boolean
+  ) => {
+    setFilters((prev) => ({
       ...prev,
-      [key]: value === "" ? undefined : value
+      [key]: value === "" ? undefined : value,
     }));
   };
 
   return (
     <>
-      <div 
+      <div
         className="rounded-full p-3 bg-[var(--accent-primary)] flex items-center justify-center cursor-pointer transition-all duration-300 hover:opacity-90"
         onClick={() => setIsOpen(!isOpen)}
         title="Фильтры"
@@ -63,16 +66,16 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
       </div>
 
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ 
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)'
+          style={{
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+            backdropFilter: "blur(8px)",
+            WebkitBackdropFilter: "blur(8px)",
           }}
           onClick={() => setIsOpen(false)}
         >
-          <div 
+          <div
             className="rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto"
             style={{
               backgroundColor: "var(--card-bg)",
@@ -81,8 +84,10 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-[family-name:var(--font-stetica-bold)]">Фильтры</h2>
-              <button 
+              <h2 className="text-2xl font-[family-name:var(--font-stetica-bold)]">
+                Фильтры
+              </h2>
+              <button
                 onClick={() => setIsOpen(false)}
                 className="text-2xl hover:opacity-70 transition-opacity"
               >
@@ -91,7 +96,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Цена */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Цена (₽)
@@ -101,7 +105,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     type="number"
                     placeholder="От"
                     value={filters.price_min || ""}
-                    onChange={(e) => updateFilter("price_min", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "price_min",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -112,7 +121,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     type="number"
                     placeholder="До"
                     value={filters.price_max || ""}
-                    onChange={(e) => updateFilter("price_max", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "price_max",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -122,7 +136,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </div>
               </div>
 
-              {/* Площадь */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Площадь (м²)
@@ -132,7 +145,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     type="number"
                     placeholder="От"
                     value={filters.area_min || ""}
-                    onChange={(e) => updateFilter("area_min", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "area_min",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -143,7 +161,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     type="number"
                     placeholder="До"
                     value={filters.area_max || ""}
-                    onChange={(e) => updateFilter("area_max", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "area_max",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -153,7 +176,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </div>
               </div>
 
-              {/* Комнаты */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Количество комнат
@@ -164,7 +186,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     placeholder="От"
                     min="0"
                     value={filters.rooms_min || ""}
-                    onChange={(e) => updateFilter("rooms_min", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "rooms_min",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -176,7 +203,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     placeholder="До"
                     min="0"
                     value={filters.rooms_max || ""}
-                    onChange={(e) => updateFilter("rooms_max", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "rooms_max",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -186,7 +218,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </div>
               </div>
 
-              {/* Этаж */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Этаж
@@ -197,7 +228,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     placeholder="От"
                     min="1"
                     value={filters.floors_min || ""}
-                    onChange={(e) => updateFilter("floors_min", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "floors_min",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -209,7 +245,12 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                     placeholder="До"
                     min="1"
                     value={filters.floors_max || ""}
-                    onChange={(e) => updateFilter("floors_max", e.target.value ? Number(e.target.value) : "")}
+                    onChange={(e) =>
+                      updateFilter(
+                        "floors_max",
+                        e.target.value ? Number(e.target.value) : ""
+                      )
+                    }
                     className="w-full px-3 py-2 rounded-lg"
                     style={{
                       backgroundColor: "var(--bg-secondary)",
@@ -219,14 +260,18 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </div>
               </div>
 
-              {/* Город */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Город
                 </label>
                 <select
                   value={filters.city || ""}
-                  onChange={(e) => updateFilter("city", e.target.value ? Number(e.target.value) : "")}
+                  onChange={(e) =>
+                    updateFilter(
+                      "city",
+                      e.target.value ? Number(e.target.value) : ""
+                    )
+                  }
                   className="w-full px-3 py-2 rounded-lg"
                   style={{
                     backgroundColor: "var(--bg-secondary)",
@@ -240,7 +285,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </select>
               </div>
 
-              {/* Категория */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Категория
@@ -260,7 +304,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </select>
               </div>
 
-              {/* Тип дома */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Тип дома
@@ -280,14 +323,15 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </select>
               </div>
 
-              {/* Материал здания */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Материал здания
                 </label>
                 <select
                   value={filters.building_material || ""}
-                  onChange={(e) => updateFilter("building_material", e.target.value)}
+                  onChange={(e) =>
+                    updateFilter("building_material", e.target.value)
+                  }
                   className="w-full px-3 py-2 rounded-lg"
                   style={{
                     backgroundColor: "var(--bg-secondary)",
@@ -301,7 +345,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </select>
               </div>
 
-              {/* Лифт */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Лифт
@@ -322,7 +365,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </select>
               </div>
 
-              {/* Парковка */}
               <div className="space-y-2">
                 <label className="block text-sm font-[family-name:var(--font-stetica-bold)]">
                   Парковка
@@ -342,7 +384,6 @@ export function Filter({ onApplyFilters, currentFilters }: FilterProps) {
                 </select>
               </div>
 
-              {/* Балкон */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input

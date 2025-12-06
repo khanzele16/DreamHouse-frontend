@@ -1,12 +1,13 @@
 "use client";
 
-import { CardItemPreview } from "@/app/components/CardItemPreview";
+import { CellComponent } from "@/app/components/CardItemPreview";
 import { Suspense, useEffect, useState } from "react";
 // import { CatalogList } from "@/app/components/CatalogList";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { fetchCards } from "@/app/shared/redux/slices/cards";
 import { ICardFilters } from "@/app/types";
 import { Filter } from "@/app/components/Filter";
+import { Grid } from "react-window";
 
 const ListCatalog = [
   { name: "Частные дома", query: "private-houses" },
@@ -39,15 +40,12 @@ export default function Home() {
     >
       <div className="w-full max-w-[1300px] flex flex-col content-center gap-y-6 sm:gap-y-[25px] px-4 sm:px-6 lg:px-8 pt-2 pb-6 flex-grow">
         <div className="flex items-center gap-3">
-          {/* CatalogList temporarily commented out */}
           <div className="flex-1">
-            <Suspense>
-              {/* <CatalogList List={ListCatalog} /> */}
-            </Suspense>
+            {/* <Suspense><CatalogList List={ListCatalog} /></Suspense> */}
           </div>
           <div className="flex-shrink-0">
-            <Filter 
-              onApplyFilters={handleApplyFilters} 
+            <Filter
+              onApplyFilters={handleApplyFilters}
               currentFilters={currentFilters}
             />
           </div>
@@ -71,9 +69,14 @@ export default function Home() {
 
         {!loading && !error && cards?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-[30px] w-full">
-            {cards.map((card) => (
-              <CardItemPreview key={card.id} card={card} />
-            ))}
+            <Grid
+              cellComponent={CellComponent}
+              cellProps={{ cards } as any}
+              columnCount={2}
+              columnWidth={400}
+              rowCount={Math.ceil(cards.length / 2)}
+              rowHeight={400}
+            />
           </div>
         )}
       </div>

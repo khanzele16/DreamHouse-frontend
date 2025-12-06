@@ -13,7 +13,6 @@ export default function NotFound() {
       }}
     >
       <div className="max-w-2xl w-full text-center">
-        {/* Logo */}
         <div className="flex justify-center mb-8 sm:mb-12">
           <svg
             className="w-[52px] h-[84px] sm:w-[78px] sm:h-[126px] lg:w-[104px] lg:h-[168px]"
@@ -34,7 +33,6 @@ export default function NotFound() {
           </svg>
         </div>
 
-        {/* 404 Number with decorative elements */}
         <div className="relative mb-6 sm:mb-8">
           <h1
             className="text-8xl sm:text-9xl lg:text-[180px] font-bold tracking-tight"
@@ -46,7 +44,6 @@ export default function NotFound() {
             404
           </h1>
           
-          {/* Decorative house icons */}
           <div className="absolute -top-4 -left-4 sm:-top-6 sm:-left-8 opacity-20">
             <svg
               className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20"
@@ -96,7 +93,6 @@ export default function NotFound() {
           </div>
         </div>
 
-        {/* Title */}
         <h2
           className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6"
           style={{
@@ -107,7 +103,6 @@ export default function NotFound() {
           Страница не найдена
         </h2>
 
-        {/* Description */}
         <p
           className="text-base sm:text-lg lg:text-xl mb-8 sm:mb-12 max-w-md mx-auto leading-relaxed"
           style={{
@@ -119,7 +114,6 @@ export default function NotFound() {
           Возможно, вы найдете то, что ищете, на главной странице.
         </p>
 
-        {/* Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
             href="/"
@@ -145,7 +139,6 @@ export default function NotFound() {
           </button>
         </div>
 
-        {/* Additional info */}
         <div className="mt-12 sm:mt-16">
           <p
             className="text-sm sm:text-base"

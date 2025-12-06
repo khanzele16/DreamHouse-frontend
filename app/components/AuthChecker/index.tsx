@@ -9,7 +9,6 @@ export const AuthChecker = () => {
   const { isAuth } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // Проверяем авторизацию только если есть токен и пользователь не авторизован
     const token = localStorage.getItem("access_token");
     if (token && !isAuth) {
       dispatch(authMe());

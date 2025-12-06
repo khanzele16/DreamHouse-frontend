@@ -39,10 +39,6 @@ export function CardInfo({ card }: CardInfoProps) {
             <p className="text-lg">{card.address}</p>
           </div>
         </div>
-
-        <div className="flex flex-col items-start lg:items-end gap-2">
-          <RatingBlock rating={card.rating} count={card.rating_count} />
-        </div>
       </div>
 
       <div

@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import PublicRoute from "@/app/components/PublicRoute";
+import { ILoginForm } from "@/app/types";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ILoginForm } from "@/app/types";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { useTheme } from "@/app/shared/contexts/ThemeContext";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { login, clearError, fetchUser } from "@/app/shared/redux/slices/auth";
-import { useTheme } from "@/app/shared/contexts/ThemeContext";
-import PublicRoute from "@/app/components/PublicRoute";
 
 function LoginContent() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { loading, error, isAuth } = useAppSelector((state) => state.auth);
+  const { loading, error } = useAppSelector((state) => state.auth);
   const { theme, toggleTheme } = useTheme();
 
   const {
@@ -27,22 +27,19 @@ function LoginContent() {
   const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
     dispatch(clearError());
 
-    // Отправляем данные логина
     const result = await dispatch(
       login({
-        phone_number: data.identifier, // используем identifier как phone_number
+        phone_number: data.identifier,
         password: data.password,
       })
     );
 
-    // Если логин успешен, загружаем данные пользователя и перенаправляем на главную
     if (login.fulfilled.match(result) && result.payload.access) {
       await dispatch(fetchUser());
       router.push("/");
     }
   };
 
-  // Очищаем ошибки при размонтировании компонента
   useEffect(() => {
     return () => {
       dispatch(clearError());

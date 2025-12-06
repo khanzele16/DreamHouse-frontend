@@ -27,7 +27,6 @@ export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
   const { isAuth } = useAppSelector((state) => state.auth);
   const { developers } = useAppSelector((state) => state.developers);
 
-  // Проверяем, подписан ли пользователь на этого застройщика
   const developer = developers.find((dev) => dev.id === card.developer.id);
   const [isSubscribed, setIsSubscribed] = useState(
     developer?.is_subscribed || false

@@ -10,7 +10,10 @@ let failedQueue: Array<{
   reject: (reason?: unknown) => void;
 }> = [];
 
-const processQueue = (error: AxiosError | null, token: string | null = null) => {
+const processQueue = (
+  error: AxiosError | null,
+  token: string | null = null
+) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -22,7 +25,6 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
   failedQueue = [];
 };
 
-// Interceptor для добавления токена к запросам
 config.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("access_token");
@@ -36,15 +38,15 @@ config.interceptors.request.use(
   }
 );
 
-// Interceptor для обработки 401 ошибок и обновления токена
 config.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
+    const originalRequest = error.config as InternalAxiosRequestConfig & {
+      _retry?: boolean;
+    };
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        // Если токен уже обновляется, добавляем запрос в очередь
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
@@ -63,7 +65,6 @@ config.interceptors.response.use(
       const refreshToken = localStorage.getItem("refresh_token");
 
       if (!refreshToken) {
-        // Нет refresh токена, перенаправляем на логин
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         isRefreshing = false;
@@ -73,7 +74,6 @@ config.interceptors.response.use(
       }
 
       try {
-        // Обновляем токен
         const response = await axios.post(
           "https://api.dreamhouse05.com/api/token/refresh/",
           { refresh: refreshToken }
@@ -90,7 +90,6 @@ config.interceptors.response.use(
           return config(originalRequest);
         }
       } catch (refreshError) {
-        // Ошибка при обновлении токена, очищаем данные и перенаправляем на логин
         processQueue(refreshError as AxiosError, null);
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");

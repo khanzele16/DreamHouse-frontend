@@ -9,21 +9,28 @@ export const fetchCards = createAsyncThunk<ICard[], ICardFilters | undefined>(
   async (filters, { rejectWithValue }) => {
     try {
       const params = new URLSearchParams();
-      
+
       if (filters) {
         Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== '') {
+          if (value !== undefined && value !== null && value !== "") {
             params.append(key, String(value));
           }
         });
       }
-      
-      const url = `https://api.dreamhouse05.com/api/cards/${params.toString() ? `?${params.toString()}` : ''}`;
+
+      const url = `https://api.dreamhouse05.com/api/cards/${
+        params.toString() ? `?${params.toString()}` : ""
+      }`;
       const { data } = await axios.get<ICard[]>(url);
       return data;
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: unknown }; message?: string };
-      return rejectWithValue(axiosError.message || "Не удалось загрузить карточки");
+      const axiosError = error as {
+        response?: { data?: unknown };
+        message?: string;
+      };
+      return rejectWithValue(
+        axiosError.message || "Не удалось загрузить карточки"
+      );
     }
   }
 );
@@ -32,11 +39,18 @@ export const fetchCardById = createAsyncThunk<ICard, number>(
   "cards/fetchCardById",
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get<ICard>(`https://api.dreamhouse05.com/api/cards/${id}/`);
+      const { data } = await axios.get<ICard>(
+        `https://api.dreamhouse05.com/api/cards/${id}/`
+      );
       return data;
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: unknown }; message?: string };
-      return rejectWithValue(axiosError.message || "Не удалось загрузить карточку");
+      const axiosError = error as {
+        response?: { data?: unknown };
+        message?: string;
+      };
+      return rejectWithValue(
+        axiosError.message || "Не удалось загрузить карточку"
+      );
     }
   }
 );
@@ -49,11 +63,16 @@ export const searchCards = createAsyncThunk<ICard[], string>(
         return [];
       }
       const { data } = await axios.get<ICard[]>(
-        `https://api.dreamhouse05.com/api/cards/search/?q=${encodeURIComponent(query)}`
+        `https://api.dreamhouse05.com/api/cards/search/?q=${encodeURIComponent(
+          query
+        )}`
       );
       return data;
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: unknown }; message?: string };
+      const axiosError = error as {
+        response?: { data?: unknown };
+        message?: string;
+      };
       return rejectWithValue(axiosError.message || "Ошибка поиска");
     }
   }
@@ -70,13 +89,18 @@ export const fetchFavoriteCards = createAsyncThunk<ICard[]>(
       const { data } = await axios.get<Array<{ id: number; card: ICard }>>(
         "https://api.dreamhouse05.com/api/cards/favorites/me/",
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
-      return data.map(item => item.card);
+      return data.map((item) => item.card);
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: unknown }; message?: string };
-      return rejectWithValue(axiosError.message || "Не удалось загрузить избранные карточки");
+      const axiosError = error as {
+        response?: { data?: unknown };
+        message?: string;
+      };
+      return rejectWithValue(
+        axiosError.message || "Не удалось загрузить избранные карточки"
+      );
     }
   }
 );
@@ -84,41 +108,39 @@ export const fetchFavoriteCards = createAsyncThunk<ICard[]>(
 export const toggleFavorite = createAsyncThunk<
   { id: number; is_favorite: boolean },
   { id: number; is_favorite: boolean }
->(
-  "cards/toggleFavorite",
-  async ({ id, is_favorite }, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("access_token");
-      if (!token) {
-        return rejectWithValue("Необходима авторизация");
-      }
-
-      if (is_favorite) {
-        // Удаляем из избранного (DELETE)
-        await axios.delete(
-          `https://api.dreamhouse05.com/api/cards/${id}/favorite/`,
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-        return { id, is_favorite: false };
-      } else {
-        // Добавляем в избранное (POST)
-        await axios.post(
-          `https://api.dreamhouse05.com/api/cards/${id}/favorite/`,
-          {},
-          {
-            headers: { Authorization: `Bearer ${token}` }
-          }
-        );
-        return { id, is_favorite: true };
-      }
-    } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: unknown }; message?: string };
-      return rejectWithValue(axiosError.message || "Ошибка изменения избранного");
+>("cards/toggleFavorite", async ({ id, is_favorite }, { rejectWithValue }) => {
+  try {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      return rejectWithValue("Необходима авторизация");
     }
+
+    if (is_favorite) {
+      await axios.delete(
+        `https://api.dreamhouse05.com/api/cards/${id}/favorite/`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return { id, is_favorite: false };
+    } else {
+      await axios.post(
+        `https://api.dreamhouse05.com/api/cards/${id}/favorite/`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return { id, is_favorite: true };
+    }
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: { data?: unknown };
+      message?: string;
+    };
+    return rejectWithValue(axiosError.message || "Ошибка изменения избранного");
   }
-);
+});
 
 const initialState: ICardsSliceState = {
   cards: [],
@@ -140,18 +162,22 @@ const cards = createSlice({
     clearSearchResults(state) {
       state.searchResults = [];
     },
-    updateCardFavorite(state, action: { payload: { id: number; is_favorite: boolean } }) {
-      // Обновляем в списке карточек
-      const cardInList = state.cards.find(card => card.id === action.payload.id);
+    updateCardFavorite(
+      state,
+      action: { payload: { id: number; is_favorite: boolean } }
+    ) {
+      const cardInList = state.cards.find(
+        (card) => card.id === action.payload.id
+      );
       if (cardInList) {
         cardInList.is_favorite = action.payload.is_favorite;
       }
-      // Обновляем текущую карточку
       if (state.currentCard && state.currentCard.id === action.payload.id) {
         state.currentCard.is_favorite = action.payload.is_favorite;
       }
-      // Обновляем в результатах поиска
-      const cardInSearch = state.searchResults.find(card => card.id === action.payload.id);
+      const cardInSearch = state.searchResults.find(
+        (card) => card.id === action.payload.id
+      );
       if (cardInSearch) {
         cardInSearch.is_favorite = action.payload.is_favorite;
       }
@@ -171,7 +197,7 @@ const cards = createSlice({
       })
       .addCase(fetchCards.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || "Ошибка загрузки карточек";
+        state.error = (action.payload as string) || "Ошибка загрузки карточек";
       })
       .addCase(fetchCardById.pending, (state) => {
         state.loading = true;
@@ -184,7 +210,7 @@ const cards = createSlice({
       })
       .addCase(fetchCardById.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || "Ошибка загрузки карточки";
+        state.error = (action.payload as string) || "Ошибка загрузки карточки";
       })
       .addCase(searchCards.pending, (state) => {
         state.searchLoading = true;
@@ -196,7 +222,7 @@ const cards = createSlice({
       .addCase(searchCards.rejected, (state, action) => {
         state.searchLoading = false;
         state.searchResults = [];
-        state.error = action.payload as string || "Ошибка поиска";
+        state.error = (action.payload as string) || "Ошибка поиска";
       })
       .addCase(fetchFavoriteCards.pending, (state) => {
         state.loading = true;
@@ -210,30 +236,27 @@ const cards = createSlice({
       })
       .addCase(fetchFavoriteCards.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || "Не удалось загрузить избранные карточки";
+        state.error =
+          (action.payload as string) ||
+          "Не удалось загрузить избранные карточки";
       })
       .addCase(toggleFavorite.fulfilled, (state, action) => {
-        // Обновляем состояние избранного для карточки
         const { id, is_favorite } = action.payload;
-        
-        // Если удалили из избранного И находимся на странице избранного, удаляем из списка
+
         if (!is_favorite && state.isFavoritesPage) {
-          state.cards = state.cards.filter(card => card.id !== id);
+          state.cards = state.cards.filter((card) => card.id !== id);
         } else {
-          // Обновляем в списке карточек (если карточка там есть)
-          const cardInList = state.cards.find(card => card.id === id);
+          const cardInList = state.cards.find((card) => card.id === id);
           if (cardInList) {
             cardInList.is_favorite = is_favorite;
           }
         }
-        
-        // Обновляем текущую карточку
+
         if (state.currentCard && state.currentCard.id === id) {
           state.currentCard.is_favorite = is_favorite;
         }
-        
-        // Обновляем в результатах поиска
-        const cardInSearch = state.searchResults.find(card => card.id === id);
+
+        const cardInSearch = state.searchResults.find((card) => card.id === id);
         if (cardInSearch) {
           cardInSearch.is_favorite = is_favorite;
         }
@@ -241,5 +264,6 @@ const cards = createSlice({
   },
 });
 
-export const { clearError, clearSearchResults, updateCardFavorite } = cards.actions;
+export const { clearError, clearSearchResults, updateCardFavorite } =
+  cards.actions;
 export default cards.reducer;
