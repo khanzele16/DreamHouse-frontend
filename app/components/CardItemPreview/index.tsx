@@ -15,7 +15,7 @@ export const CellComponent: React.FC<CardItemPreviewProps> = ({ card }) => {
   return <CardItemPreview card={card} />;
 };
 
-function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
+export function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
   const dispatch = useAppDispatch();
   const { isAuth } = useAppSelector((state) => state.auth);
 
