@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { DeveloperCard } from "@/app/components/DeveloperCard";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { fetchDevelopers } from "@/app/shared/redux/slices/developers";
 
@@ -45,14 +44,6 @@ export default function DevelopersPage() {
         {!loading && !error && developers.length === 0 && (
           <div className="text-center py-10 text-[#999999]">
             Застройщики не найдены
-          </div>
-        )}
-
-        {!loading && !error && developers.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-[30px] w-full">
-            {developers.map((developer) => (
-              <DeveloperCard key={developer.id} developer={developer} />
-            ))}
           </div>
         )}
       </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { DeveloperCard } from "@/app/components/DeveloperCard";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { fetchMySubscriptions } from "@/app/shared/redux/slices/developers";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
@@ -9,7 +8,9 @@ import Link from "next/link";
 
 function SubscriptionsContent() {
   const dispatch = useAppDispatch();
-  const { subscriptions, loading, error } = useAppSelector((state) => state.developers);
+  const { subscriptions, loading, error } = useAppSelector(
+    (state) => state.developers
+  );
 
   useEffect(() => {
     dispatch(fetchMySubscriptions());
@@ -85,14 +86,6 @@ function SubscriptionsContent() {
               </Link>
               , чтобы подписаться
             </p>
-          </div>
-        )}
-
-        {!loading && !error && subscriptions.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-[30px] w-full">
-            {subscriptions.map((developer) => (
-              <DeveloperCard key={developer.id} developer={developer} />
-            ))}
           </div>
         )}
       </div>
