@@ -1,7 +1,9 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
+export const API_BASE_URL = "https://api.dreamhouse05.com/api";
+
 const config = axios.create({
-  baseURL: "https://api.dreamhouse05.com/api/",
+  baseURL: API_BASE_URL,
 });
 
 let isRefreshing = false;
@@ -45,7 +47,17 @@ config.interceptors.response.use(
       _retry?: boolean;
     };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      (error.response?.status === 401 || error.response?.status === 403) &&
+      !originalRequest._retry
+    ) {
+      if (originalRequest.url?.includes("/token/refresh/")) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        window.location.href = "/login";
+        return Promise.reject(error);
+      }
+
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -88,6 +100,13 @@ config.interceptors.response.use(
           processQueue(null, access);
           isRefreshing = false;
           return config(originalRequest);
+        } else {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          isRefreshing = false;
+          processQueue(error, null);
+          window.location.href = "/login";
+          return Promise.reject(error);
         }
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);

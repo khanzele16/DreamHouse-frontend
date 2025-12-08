@@ -1,4 +1,5 @@
 import axios from "@/app/shared/config/axios";
+import { API_BASE_URL } from "@/app/shared/config/axios";
 import { IDevelopersSliceState } from "@/app/types/redux";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IDeveloperDetail } from "@/app/types/models";
@@ -8,7 +9,7 @@ export const fetchDevelopers = createAsyncThunk<IDeveloperDetail[]>(
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<IDeveloperDetail[]>(
-        "https://api.dreamhouse05.com/api/developers/"
+        `${API_BASE_URL}/developers/`
       );
       return data;
     } catch (error: unknown) {
@@ -28,7 +29,7 @@ export const fetchDeveloperById = createAsyncThunk<IDeveloperDetail, number>(
   async (id, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<IDeveloperDetail>(
-        `https://api.dreamhouse05.com/api/developers/${id}/`
+        `${API_BASE_URL}/developers/${id}/`
       );
       return data;
     } catch (error: unknown) {
@@ -48,7 +49,7 @@ export const fetchDeveloperCards = createAsyncThunk<IDeveloperDetail, number>(
   async (developerId, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<IDeveloperDetail>(
-        `https://api.dreamhouse05.com/api/developers/${developerId}/cards/`
+        `${API_BASE_URL}/developers/${developerId}/cards/`
       );
       return data;
     } catch (error: unknown) {
@@ -74,7 +75,7 @@ export const subscribeToDeveloper = createAsyncThunk<
     }
 
     await axios.post(
-      `https://api.dreamhouse05.com/api/developers/${developerId}/subscribe/`,
+      `${API_BASE_URL}/developers/${developerId}/subscribe/`,
       {},
       {
         headers: { Authorization: `Bearer ${token}` },

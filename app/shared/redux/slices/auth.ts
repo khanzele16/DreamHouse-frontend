@@ -86,6 +86,8 @@ export const fetchUser = createAsyncThunk(
     try {
       const token = localStorage.getItem("access_token");
       if (!token) {
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
         return rejectWithValue("No token");
       }
       const { data } = await axios.get("/users/me/", {
@@ -94,8 +96,12 @@ export const fetchUser = createAsyncThunk(
       if (data.ok && data.user) {
         return data.user;
       }
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       return rejectWithValue(data.reason || "Failed to fetch user");
     } catch (error: unknown) {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
       const axiosError = error as { response?: { data?: unknown } };
       return rejectWithValue(axiosError.response?.data);
     }
@@ -212,6 +218,7 @@ const auth = createSlice({
       .addCase(fetchUser.rejected, (state) => {
         state.loading = false;
         state.user = null;
+        state.isAuth = false;
       })
       .addCase(authMe.pending, (state) => {
         state.loading = true;

@@ -51,6 +51,10 @@ export interface ICard {
   developer: IDeveloper;
   images: ICardImage[];
   videos: IVideo[];
+  documents?: IDocument[];
+  questions?: string[];
+  recommendations?: ICard[];
+  renovation?: string;
   created_at: string;
   is_favorite?: boolean;
 }

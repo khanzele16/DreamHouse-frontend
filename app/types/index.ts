@@ -11,19 +11,19 @@ export interface ILoginForm {
 }
 
 export interface ICardFilters {
-  area_max?: number;
-  area_min?: number;
-  balcony?: boolean;
-  building_material?: 'brick' | 'panel' | 'monolith';
-  category?: 'flat' | 'new_building';
   city?: 1 | 2 | 3;
-  elevator?: 'none' | 'passenger' | 'cargo';
-  floors_max?: number;
-  floors_min?: number;
-  house_type?: 'private' | 'apartment';
-  parking?: 'none' | 'underground';
-  price_max?: number;
+  category?: "flat" | "new_building";
+  house_type?: "private" | "apartment";
+  elevator?: "cargo" | "none" | "passenger";
+  parking?: "none" | "underground";
+  building_material?: "brick" | "monolith" | "panel";
+  balcony?: boolean;
+  area_min?: number;
+  area_max?: number;
   price_min?: number;
-  rooms_max?: number;
+  price_max?: number;
+  floors_min?: number;
+  floors_max?: number;
   rooms_min?: number;
+  rooms_max?: number;
 }

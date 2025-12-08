@@ -2,14 +2,6 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { DetailsSection } from "@/app/card/[id]/lib/components";
-import {
-  translateCity,
-  translateElevator,
-  translateParking,
-  translateHouseType,
-  translateCategory,
-} from "@/app/card/[id]/lib";
 import type { ICard } from "@/app/types/models";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import {
@@ -146,23 +138,6 @@ export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
           </button>
         </div>
       </div>
-
-      <DetailsSection
-        title="Основные характеристики"
-        items={[
-          { label: "Город", value: translateCity(card.city) },
-          { label: "Лифт", value: translateElevator(card.elevator) },
-          { label: "Площадь", value: `${card.area} м²` },
-          { label: "Парковка", value: translateParking(card.parking) },
-          { label: "Тип дома", value: translateHouseType(card.house_type) },
-          { label: "Ремонт", value: "С ремонтом" },
-          { label: "Категория", value: translateCategory(card.category) },
-          {
-            label: "Балкон или лоджия",
-            value: card.balcony ? "Балкон" : "Нет",
-          },
-        ]}
-      />
     </aside>
   );
 }

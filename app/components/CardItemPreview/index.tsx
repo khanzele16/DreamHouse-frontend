@@ -3,43 +3,21 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ICard } from "@/app/types/models";
-import { useAppDispatch } from "@/app/shared/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { toggleFavorite } from "@/app/shared/redux/slices/cards";
-import { CSSProperties, ReactElement } from "react";
+import { ReactElement } from "react";
 
 interface CardItemPreviewProps {
   card: ICard;
 }
 
-type CellProps = {
-  ariaAttributes: { "aria-colindex": number; role: "gridcell" };
-  columnIndex: number;
-  rowIndex: number;
-  style: CSSProperties;
-  cards: ICard[];
-};
-
-export const CellComponent: React.FC<CellProps> = ({
-  ariaAttributes,
-  columnIndex,
-  rowIndex,
-  style,
-  cards,
-}) => {
-  const index = rowIndex * 2 + columnIndex;
-  const card = cards[index];
-
-  if (!card) return null;
-
-  return (
-    <div style={style} {...ariaAttributes}>
-      <CardItemPreview card={card} />
-    </div>
-  );
+export const CellComponent: React.FC<CardItemPreviewProps> = ({ card }) => {
+  return <CardItemPreview card={card} />;
 };
 
 function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
   const dispatch = useAppDispatch();
+  const { isAuth } = useAppSelector((state) => state.auth);
 
   const formattedPrice = new Intl.NumberFormat("ru-RU").format(
     parseFloat(card.price)
@@ -52,6 +30,12 @@ function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (!isAuth) {
+      alert("Войдите в систему, чтобы добавить в избранное");
+      return;
+    }
+    
     dispatch(
       toggleFavorite({ id: card.id, is_favorite: card.is_favorite || false })
     );
@@ -162,24 +146,6 @@ function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
           >
             {card.title}
           </p>
-
-          <div
-            className="text-sm mt-1"
-            style={{ color: "var(--text-secondary)" }}
-          >
-            <span className="mr-3">
-              Комнат:{" "}
-              <strong style={{ color: "var(--text-primary)" }}>
-                {card.rooms}
-              </strong>
-            </span>
-            <span>
-              Этажей:{" "}
-              <strong style={{ color: "var(--text-primary)" }}>
-                {card.floors_total}
-              </strong>
-            </span>
-          </div>
 
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-x-2 mt-auto pt-2">
             <div className="flex flex-row items-center gap-x-1 sm:gap-x-[4px] flex-1 min-w-0">

@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import { logout, fetchUser } from "@/app/shared/redux/slices/auth";
 import ProtectedRoute from "@/app/components/ProtectedRoute";
-import Image from "next/image";
 
 function ProfileContent() {
   const router = useRouter();
@@ -19,8 +18,6 @@ function ProfileContent() {
     password: "••••••••",
   });
   const [message, setMessage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [avatarDataUrl, setAvatarDataUrl] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
@@ -36,27 +33,8 @@ function ProfileContent() {
         phone_number: user.phone_number || "",
         password: "••••••••",
       });
-      if (user.avatar) {
-        setAvatarDataUrl(user.avatar);
-      }
     }
   }, [user]);
-
-  function triggerFile() {
-    fileInputRef.current?.click();
-  }
-
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setAvatarDataUrl(String(reader.result));
-      setMessage("Аватар обновлён.");
-      setTimeout(() => setMessage(null), 3000);
-    };
-    reader.readAsDataURL(file);
-  }
 
   function handleChangePassword() {
     setMessage("Ссылка для смены пароля отправлена на вашу почту.");

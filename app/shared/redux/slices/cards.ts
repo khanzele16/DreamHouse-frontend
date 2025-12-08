@@ -1,4 +1,5 @@
 import axios from "axios";
+import { API_BASE_URL } from "@/app/shared/config/axios";
 import { ICardsSliceState } from "@/app/types/redux";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ICard } from "@/app/types/models";
@@ -18,9 +19,8 @@ export const fetchCards = createAsyncThunk<ICard[], ICardFilters | undefined>(
         });
       }
 
-      const url = `https://api.dreamhouse05.com/api/cards/${
-        params.toString() ? `?${params.toString()}` : ""
-      }`;
+      const queryString = params.toString();
+      const url = `${API_BASE_URL}/cards/${queryString ? `?${queryString}` : ""}`;
       const { data } = await axios.get<ICard[]>(url);
       return data;
     } catch (error: unknown) {
@@ -40,7 +40,7 @@ export const fetchCardById = createAsyncThunk<ICard, number>(
   async (id, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<ICard>(
-        `https://api.dreamhouse05.com/api/cards/${id}/`
+        `${API_BASE_URL}/cards/${id}/`
       );
       return data;
     } catch (error: unknown) {
@@ -63,9 +63,7 @@ export const searchCards = createAsyncThunk<ICard[], string>(
         return [];
       }
       const { data } = await axios.get<ICard[]>(
-        `https://api.dreamhouse05.com/api/cards/search/?q=${encodeURIComponent(
-          query
-        )}`
+        `${API_BASE_URL}/cards/search/?q=${encodeURIComponent(query)}`
       );
       return data;
     } catch (error: unknown) {
@@ -87,7 +85,7 @@ export const fetchFavoriteCards = createAsyncThunk<ICard[]>(
         return rejectWithValue("Необходима авторизация");
       }
       const { data } = await axios.get<Array<{ id: number; card: ICard }>>(
-        "https://api.dreamhouse05.com/api/cards/favorites/me/",
+        `${API_BASE_URL}/cards/favorites/me/`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
