@@ -20,7 +20,7 @@ export default function FiltersPanel({
 }: FiltersPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuth } = useAppSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [filters, setFilters] = useState<ICardFilters>(currentFilters);
@@ -31,7 +31,7 @@ export default function FiltersPanel({
 
   useEffect(() => {
     if (searchParams.get('AI') !== null) {
-      if (isAuthenticated) {
+      if (isAuth) {
         setIsAIOpen(true);
       } else {
         alert('Для использования ИИ-помощника необходимо войти в систему');
@@ -41,7 +41,7 @@ export default function FiltersPanel({
         router.replace(newUrl);
       }
     }
-  }, [searchParams, isAuthenticated, router]);
+  }, [searchParams, isAuth, router]);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -57,7 +57,7 @@ export default function FiltersPanel({
   );
 
   const handleAIChat = useCallback(() => {
-    if (!isAuthenticated) {
+    if (!isAuth) {
       alert('Для использования ИИ-помощника необходимо войти в систему');
       return;
     }
@@ -65,7 +65,7 @@ export default function FiltersPanel({
     const params = new URLSearchParams(searchParams);
     params.set('AI', 'true');
     router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams, isAuthenticated]);
+  }, [router, searchParams, isAuth]);
 
   const handleAIClose = useCallback(() => {
     setIsAIOpen(false);

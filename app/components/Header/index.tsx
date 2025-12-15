@@ -12,7 +12,7 @@ import { useAppSelector } from "@/app/shared/redux/hooks";
 export const Header = () => {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isAuth } = useAppSelector((state) => state.auth);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (["/login", "/register", "/forgot"].includes(pathname)) {
@@ -110,7 +110,7 @@ export const Header = () => {
             <div className="relative">
               <svg
                 onClick={() => {
-                  if (!isAuthenticated) {
+                  if (!isAuth) {
                     alert('Для просмотра уведомлений необходимо войти в систему');
                     return;
                   }
@@ -229,7 +229,7 @@ export const Header = () => {
           <div className="relative">
             <svg
               onClick={() => {
-                if (!isAuthenticated) {
+                if (!isAuth) {
                   alert('Для просмотра уведомлений необходимо войти в систему');
                   return;
                 }
