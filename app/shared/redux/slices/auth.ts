@@ -47,6 +47,10 @@ export const register = createAsyncThunk<IRegisterResponse, IRegisterRequest>(
         `${API_BASE_URL}/users/register/`,
         userData
       );
+      if (data.access && data.refresh) {
+        localStorage.setItem("access_token", data.access);
+        localStorage.setItem("refresh_token", data.refresh);
+      }
       return data;
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: IRegisterResponse } };
@@ -191,6 +195,10 @@ const auth = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.ok) {
+          if (action.payload.access && action.payload.refresh) {
+            state.isAuth = true;
+            state.initialized = true;
+          }
           state.error = null;
         } else {
           state.error = getErrorMessage(action.payload.reason, "register");

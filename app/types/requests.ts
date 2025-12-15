@@ -14,6 +14,8 @@ export interface IRegisterResponse {
     ok: boolean;
     CODE: "OK" | "REGISTER_FAILED" | "ALREADY_REGISTERED" | "INVALID_EMAIL" | "WEAK_PASSWORD" | "INVALID_DATA" | "SERVER_ERROR";
     reason: string;
+    access?: string;
+    refresh?: string;
 }
 
 export interface ILoginResponse {

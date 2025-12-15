@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import {
   register as registerUser,
   clearError,
+  fetchUser,
 } from "@/app/shared/redux/slices/auth";
 import PublicRoute from "@/app/components/PublicRoute";
 import { useTheme } from "@/app/shared/contexts/ThemeContext";
@@ -51,7 +52,14 @@ function RegisterContent() {
         })
       ).unwrap();
 
-      if (result.ok) {
+      if (result.ok && result.access && result.refresh) {
+        // Загружаем данные пользователя
+        await dispatch(fetchUser()).unwrap();
+        setSuccessMessage(
+          "Регистрация успешна! Перенаправляем на главную..."
+        );
+        setTimeout(() => router.push("/"), 1500);
+      } else if (result.ok) {
         setSuccessMessage(
           "Регистрация успешна! Перенаправляем на страницу входа..."
         );
