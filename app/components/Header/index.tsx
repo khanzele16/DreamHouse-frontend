@@ -7,10 +7,12 @@ import { useTheme } from "@/app/shared/contexts/ThemeContext";
 import { Search } from "@/app/components/Search";
 import { HeaderAvatar } from "@/app/components/HeaderAvatar";
 import { NotificationBell } from "@/app/components/NotificationBell";
+import { useAppSelector } from "@/app/shared/redux/hooks";
 
 export const Header = () => {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (["/login", "/register", "/forgot"].includes(pathname)) {
@@ -107,7 +109,13 @@ export const Header = () => {
             </Link>
             <div className="relative">
               <svg
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    alert('Для просмотра уведомлений необходимо войти в систему');
+                    return;
+                  }
+                  setIsNotificationsOpen(!isNotificationsOpen);
+                }}
                 className="w-[22px] h-[24px] sm:w-[24px] sm:h-[26px] cursor-pointer"
                 viewBox="0 0 28 30"
               fill="none"
@@ -220,7 +228,13 @@ export const Header = () => {
           </Link>
           <div className="relative">
             <svg
-              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  alert('Для просмотра уведомлений необходимо войти в систему');
+                  return;
+                }
+                setIsNotificationsOpen(!isNotificationsOpen);
+              }}
               className="w-[28px] h-[30px] cursor-pointer"
               viewBox="0 0 28 30"
             fill="none"

@@ -7,6 +7,7 @@ import { AIModal } from "@/app/components/AIModal";
 import { ICardFilters } from "@/app/types";
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAppSelector } from "@/app/shared/redux/hooks";
 
 interface FiltersPanelProps {
   onApplyFilters: (filters: ICardFilters) => void;
@@ -19,6 +20,7 @@ export default function FiltersPanel({
 }: FiltersPanelProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
   const [filters, setFilters] = useState<ICardFilters>(currentFilters);
@@ -28,11 +30,18 @@ export default function FiltersPanel({
   }, [currentFilters]);
 
   useEffect(() => {
-    // Проверяем наличие параметра AI в URL
     if (searchParams.get('AI') !== null) {
-      setIsAIOpen(true);
+      if (isAuthenticated) {
+        setIsAIOpen(true);
+      } else {
+        alert('Для использования ИИ-помощника необходимо войти в систему');
+        const params = new URLSearchParams(searchParams);
+        params.delete('AI');
+        const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
+        router.replace(newUrl);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isAuthenticated, router]);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -48,12 +57,15 @@ export default function FiltersPanel({
   );
 
   const handleAIChat = useCallback(() => {
+    if (!isAuthenticated) {
+      alert('Для использования ИИ-помощника необходимо войти в систему');
+      return;
+    }
     setIsAIOpen(true);
-    // Добавляем параметр AI в URL
     const params = new URLSearchParams(searchParams);
     params.set('AI', 'true');
     router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams]);
+  }, [router, searchParams, isAuthenticated]);
 
   const handleAIClose = useCallback(() => {
     setIsAIOpen(false);
