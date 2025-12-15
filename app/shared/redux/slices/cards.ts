@@ -156,7 +156,7 @@ const initialState: ICardsSliceState = {
   currentCard: null,
   searchResults: [],
   loading: true,
-  searchLoading: false,
+  searchLoading: true,
   error: null,
   isFavoritesPage: false,
   hasMore: true,

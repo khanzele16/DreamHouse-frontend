@@ -145,13 +145,11 @@ export function AIModal({ onClose }: AIModalProps) {
         response: response.data.ai_response || response.data.response,
       };
       
-      // Добавляем новое сообщение только если его еще нет в истории
       setMessages((prevMessages) => {
         const exists = prevMessages.some(m => m.id === newMessage.id);
         return exists ? prevMessages : [...prevMessages, newMessage];
       });
       
-      // Перезагружаем историю
       await loadHistory();
     } catch (error) {
       console.error('Ошибка при отправке сообщения:', error);
@@ -161,7 +159,6 @@ export function AIModal({ onClose }: AIModalProps) {
     }
   };
 
-  // Объединяем историю и новые сообщения, фильтруем дубликаты и сортируем по времени
   const allMessages = [...history, ...messages]
     .filter((msg, index, self) => 
       index === self.findIndex(m => m.id === msg.id)

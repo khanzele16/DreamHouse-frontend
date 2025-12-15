@@ -4,7 +4,7 @@ import { ILoginRequest, ILoginResponse, IRegisterRequest, IRegisterResponse } fr
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({ 
-    baseUrl: "http://188.120.245.100/api",
+    baseUrl: "https://api.dreamhouse05.com/api",
     prepareHeaders: (headers) => {
       const token = localStorage.getItem("access_token");
       if (token) {

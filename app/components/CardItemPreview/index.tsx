@@ -169,7 +169,9 @@ export function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
                   transition: "color 0.3s ease",
                 }}
               >
-                {card.address}
+                {card.address
+                  ? card.address
+                  : "г. Махачкала, р-н Учхоза, 4-й конечный тупик"}
               </p>
             </div>
           </div>

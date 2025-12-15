@@ -71,7 +71,7 @@ export function VirtualizedCardList({ filters }: VirtualizedCardListProps) {
         className="text-center py-10"
         style={{ color: "var(--text-secondary)" }}
       >
-        Карточки не найдены. Попробуйте изменить фильтры.
+        Квартир не найдено
       </div>
     );
   }
