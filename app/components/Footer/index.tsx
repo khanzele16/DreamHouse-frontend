@@ -41,7 +41,7 @@ export function Footer() {
       <div className="max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-7 py-4 sm:py-0 sm:h-[80px] sm:flex sm:items-center">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 w-full">
           <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center gap-x-2">
+            <Link href="/" className="flex items-center gap-x-1">
               <svg
                 className="w-[22px] h-[36px] sm:w-[26px] sm:h-[42px]"
                 viewBox="0 0 26 42"

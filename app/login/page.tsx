@@ -27,16 +27,28 @@ function LoginContent() {
   const onSubmit: SubmitHandler<ILoginForm> = async (data) => {
     dispatch(clearError());
 
-    const result = await dispatch(
-      login({
-        phone_number: data.identifier,
-        password: data.password,
-      })
-    );
+    try {
+      // Извлекаем только цифры из номера телефона
+      let phoneDigits = data.identifier.replace(/\D/g, "");
+      
+      // Заменяем первую цифру 7 на 8
+      if (phoneDigits.startsWith("7")) {
+        phoneDigits = "8" + phoneDigits.slice(1);
+      }
+      
+      const loginResult = await dispatch(
+        login({
+          phone_number: phoneDigits,
+          password: data.password,
+        })
+      ).unwrap();
 
-    if (login.fulfilled.match(result) && result.payload.access) {
-      await dispatch(fetchUser());
-      router.push("/");
+      if (loginResult.access) {
+        await dispatch(fetchUser()).unwrap();
+        router.push("/");
+      }
+    } catch {
+      // Ошибка уже обработана в Redux slice
     }
   };
 
@@ -205,12 +217,15 @@ function LoginContent() {
               <input
                 {...register("identifier", {
                   required: "Это поле является обязательным",
-                  pattern: {
-                    value: /^[+]?[0-9]{10,15}$/,
-                    message: "Введите корректный номер телефона (10-15 цифр)",
+                  validate: (value) => {
+                    const numbers = value.replace(/\D/g, "");
+                    if (numbers.length < 11) {
+                      return "Введите корректный номер телефона";
+                    }
+                    return true;
                   },
                 })}
-                placeholder="+7 900 123 45 67"
+                placeholder="+7 (___) ___-__-__"
                 className="font-[family-name:var(--font-stetica-regular)] mt-2 block w-full rounded-lg px-4 py-3 focus:outline-none focus:ring-2"
                 style={{
                   backgroundColor: "var(--card-bg)",
@@ -222,6 +237,33 @@ function LoginContent() {
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
+                onChange={(e) => {
+                  const numbers = e.target.value.replace(/\D/g, "");
+                  let formatted = numbers;
+                  
+                  if (formatted.startsWith("8")) {
+                    formatted = "7" + formatted.slice(1);
+                  }
+                  if (!formatted.startsWith("7") && formatted.length > 0) {
+                    formatted = "7" + formatted;
+                  }
+                  
+                  formatted = formatted.slice(0, 11);
+                  
+                  let result = "";
+                  if (formatted.length === 0) result = "";
+                  else if (formatted.length === 1) result = `+${formatted}`;
+                  else if (formatted.length <= 4) result = `+${formatted[0]} (${formatted.slice(1)}`;
+                  else if (formatted.length <= 7) {
+                    result = `+${formatted[0]} (${formatted.slice(1, 4)}) ${formatted.slice(4)}`;
+                  } else if (formatted.length <= 9) {
+                    result = `+${formatted[0]} (${formatted.slice(1, 4)}) ${formatted.slice(4, 7)}-${formatted.slice(7)}`;
+                  } else {
+                    result = `+${formatted[0]} (${formatted.slice(1, 4)}) ${formatted.slice(4, 7)}-${formatted.slice(7, 9)}-${formatted.slice(9, 11)}`;
+                  }
+                  
+                  e.target.value = result;
+                }}
               />
               {errors.identifier && (
                 <span className="text-red-500 text-sm">

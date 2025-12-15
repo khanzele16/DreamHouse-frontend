@@ -7,6 +7,7 @@ export interface IDeveloper {
   id: number;
   name: string;
   logo: string;
+  is_subscribed?: boolean;
 }
 
 export interface IDeveloperDetail extends IDeveloper {
@@ -54,6 +55,7 @@ export interface ICard {
   documents?: IDocument[];
   questions?: string[];
   recommendations?: ICard[];
+  list_curations?: ICard[];
   renovation?: string;
   created_at: string;
   is_favorite?: boolean;

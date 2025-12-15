@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/app/shared/contexts/ThemeContext";
 import { Search } from "@/app/components/Search";
 import { HeaderAvatar } from "@/app/components/HeaderAvatar";
+import { NotificationBell } from "@/app/components/NotificationBell";
 
 export const Header = () => {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   if (["/login", "/register", "/forgot"].includes(pathname)) {
     return null;
@@ -20,21 +23,21 @@ export const Header = () => {
         <div className="w-full flex items-center justify-between lg:w-auto lg:justify-start gap-x-2 lg:gap-x-[10px]">
           <Link
             href="/"
-            className="flex items-center gap-x-[4px] lg:gap-x-[10px] flex-shrink-0"
+            className="flex items-center gap-x-[2px] lg:gap-x-[5px] flex-shrink-0"
           >
             <svg
-              className="w-[26px] h-[42px]"
-              viewBox="0 0 26 42"
+              className="w-[29px] h-[45px]"
+              viewBox="0 0 29 45"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M8.72147 4.15728C6.87857 6.09646 6.52801 6.48847 6.49797 6.64528C6.48294 6.74459 6.47293 9.67164 6.48795 13.1423L6.50798 19.4564L3.48822 16.3046C1.445 14.1615 0.443427 13.1475 0.368308 13.1475H0.26815L0.278166 20.6115L0.29319 28.0755L3.84879 31.7709C5.80187 33.8042 7.43444 35.4663 7.47951 35.4663C7.54962 35.4663 10.4993 32.4295 10.5944 32.257C10.6195 32.21 10.6195 32.1368 10.5894 32.0845C10.5594 32.0322 9.25231 30.6523 7.67983 29.0111L4.82533 26.037V23.2615L4.83034 20.4913L5.67667 21.3955L6.52801 22.2946V23.8104V25.3209L8.73649 27.626C10.1738 29.1313 10.965 29.9258 11.0151 29.9049C11.0752 29.8788 11.0852 27.9657 11.0752 15.8812C11.0602 3.43597 11.0501 1.88359 10.985 1.86791C10.94 1.86268 10.0035 2.80875 8.72147 4.15728Z"
+                d="M28.7566 13.2678V30.7171L23.225 36.1912V23.1212V21.8268L21.0116 24.0164V38.3809L14.3205 45.0002L10.4343 41.1538L13.2667 38.3498L14.346 37.2822L15.4801 36.1602L15.4919 0.0195312L21.0293 5.47813L21.0116 20.9296L21.0097 20.9316L21.0116 20.9335V20.9296L23.225 18.7419L24.8489 17.1355L24.8822 17.1007L28.7566 13.2678Z"
                 fill="var(--accent-primary)"
                 style={{ transition: "fill 0.3s ease" }}
               />
               <path
-                d="M12.7375 17.2193V32.5341L10.7093 34.6457C9.59255 35.8061 8.68111 36.7887 8.68111 36.8306C8.68111 36.9403 11.771 40.1287 11.8611 40.1078C11.9312 40.0921 13.664 38.3098 16.1329 35.7172L17.2947 34.4941V28.3891V22.2841L18.101 21.4531C18.5417 20.9983 18.9172 20.622 18.9373 20.622C18.9573 20.622 18.9723 23.3191 18.9723 26.6172C18.9723 30.9869 18.9874 32.6125 19.0274 32.6281C19.0925 32.649 23.4594 28.0964 23.5145 27.9501C23.5295 27.903 23.5495 24.5526 23.5495 20.5018C23.5546 13.4768 23.5495 13.1476 23.4644 13.1476C23.4143 13.1476 22.0822 14.4961 20.3345 16.3203L17.2897 19.4982L17.2997 12.996L17.3047 6.49373L16.884 6.05467C16.6587 5.81424 15.7523 4.87339 14.8709 3.95869C13.9945 3.04921 13.1982 2.21291 13.0981 2.10315C13.0029 1.99861 12.8827 1.90975 12.8276 1.90975C12.7425 1.90975 12.7375 2.39062 12.7375 17.2193Z"
+                d="M13.2785 0V33.0171L11.0141 30.777L7.74495 27.543V23.9698L7.41392 23.6423L5.53155 21.7801V23.0687V28.5002L7.74495 30.6898L9.42557 32.3505L12.7907 35.6814L8.87907 39.5511L7.74495 38.4291L5.53155 36.2414V36.2027L5.51196 36.2201L0 30.7673V13.2153L3.84113 17.0152L3.87247 17.0482L5.53155 18.6875L7.74495 20.8771V20.8791H7.74691L7.74495 20.8771L7.74103 5.47797L13.2785 0Z"
                 fill="var(--accent-primary)"
                 style={{ transition: "fill 0.3s ease" }}
               />
@@ -102,9 +105,11 @@ export const Header = () => {
                 />
               </svg>
             </Link>
-            <svg
-              className="w-[22px] h-[24px] sm:w-[24px] sm:h-[26px] cursor-pointer"
-              viewBox="0 0 28 30"
+            <div className="relative">
+              <svg
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="w-[22px] h-[24px] sm:w-[24px] sm:h-[26px] cursor-pointer"
+                viewBox="0 0 28 30"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
             >
@@ -135,6 +140,10 @@ export const Header = () => {
                 </clipPath>
               </defs>
             </svg>
+            {isNotificationsOpen && (
+              <NotificationBell onClose={() => setIsNotificationsOpen(false)} />
+            )}
+            </div>
             <svg
               className="w-[24px] h-[26px] cursor-pointer"
               viewBox="0 0 28 30"
@@ -209,9 +218,11 @@ export const Header = () => {
               />
             </svg>
           </Link>
-          <svg
-            className="w-[28px] h-[30px] cursor-pointer"
-            viewBox="0 0 28 30"
+          <div className="relative">
+            <svg
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+              className="w-[28px] h-[30px] cursor-pointer"
+              viewBox="0 0 28 30"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -242,6 +253,10 @@ export const Header = () => {
               </clipPath>
             </defs>
           </svg>
+          {isNotificationsOpen && (
+            <NotificationBell onClose={() => setIsNotificationsOpen(false)} />
+          )}
+          </div>
           <svg
             className="w-[28px] h-[30px] cursor-pointer"
             viewBox="0 0 28 30"

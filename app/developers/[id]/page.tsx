@@ -1,22 +1,27 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
-import { 
-  fetchDeveloperById, 
-  subscribeToDeveloper, 
+import {
+  fetchDeveloperById,
+  subscribeToDeveloper,
   unsubscribeFromDeveloper,
-  clearCurrentDeveloper 
+  clearCurrentDeveloper,
 } from "@/app/shared/redux/slices/developers";
 import Image from "next/image";
+import { CardItemPreview } from "@/app/components/CardItemPreview";
+import { CardSkeleton } from "@/app/components/CardSkeleton";
 
 export default function DeveloperDetailPage() {
   const params = useParams();
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { currentDeveloper, loading, error } = useAppSelector((state) => state.developers);
+  const { currentDeveloper, loading, error } = useAppSelector(
+    (state) => state.developers
+  );
   const { isAuth } = useAppSelector((state) => state.auth);
+  const [isLoadingSubscription, setIsLoadingSubscription] = useState(false);
 
   const developerId = Number(params.id);
 
@@ -37,23 +42,72 @@ export default function DeveloperDetailPage() {
       return;
     }
 
-    if (currentDeveloper) {
-      if (currentDeveloper.is_subscribed) {
-        await dispatch(unsubscribeFromDeveloper(currentDeveloper.id));
-      } else {
-        await dispatch(subscribeToDeveloper(currentDeveloper.id));
+    setIsLoadingSubscription(true);
+    try {
+      if (currentDeveloper) {
+        if (currentDeveloper.is_subscribed) {
+          await dispatch(unsubscribeFromDeveloper(currentDeveloper.id));
+        } else {
+          await dispatch(subscribeToDeveloper(currentDeveloper.id));
+        }
       }
+    } catch (error) {
+      console.error("Ошибка при изменении подписки:", error);
+      alert("Не удалось изменить подписку. Попробуйте позже.");
+    } finally {
+      setIsLoadingSubscription(false);
     }
   };
 
   if (loading) {
     return (
       <div
-        className="flex flex-col min-h-screen justify-center items-center"
-        style={{ backgroundColor: "var(--bg-primary)" }}
+        className="flex flex-col min-h-screen justify-start content-center items-center font-[family-name:var(--font-stetica-regular)]"
+        style={{
+          backgroundColor: "var(--bg-primary)",
+          transition: "background-color 0.3s ease",
+        }}
       >
-        <div className="text-center py-10 text-[#999999]">
-          Загрузка застройщика...
+        <div className="w-full max-w-[1300px] flex flex-col content-center gap-y-6 sm:gap-y-[25px] px-4 sm:px-6 lg:px-8 pt-6 pb-6 flex-grow">
+          <div
+            className="rounded-2xl p-6 sm:p-8 animate-pulse"
+            style={{
+              backgroundColor: "var(--card-bg)",
+              border: "1px solid var(--border-color)",
+            }}
+          >
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <div
+                className="w-32 h-32 rounded-full flex-shrink-0"
+                style={{
+                  backgroundColor: "var(--bg-secondary)",
+                }}
+              />
+              <div className="flex-1 flex flex-col gap-4 w-full">
+                <div
+                  className="h-10 w-3/4 rounded"
+                  style={{ backgroundColor: "var(--bg-secondary)" }}
+                />
+                <div
+                  className="h-6 w-1/2 rounded"
+                  style={{ backgroundColor: "var(--bg-secondary)" }}
+                />
+                <div
+                  className="h-12 w-40 rounded-lg"
+                  style={{ backgroundColor: "var(--bg-secondary)" }}
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            className="h-8 w-64 rounded"
+            style={{ backgroundColor: "var(--bg-secondary)" }}
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-[30px] w-full">
+            {[...Array(4)].map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -81,13 +135,7 @@ export default function DeveloperDetailPage() {
       }}
     >
       <div className="w-full max-w-[1300px] flex flex-col content-center gap-y-6 sm:gap-y-[25px] px-4 sm:px-6 lg:px-8 pt-6 pb-6 flex-grow">
-        <div
-          className="rounded-2xl p-6 sm:p-8"
-          style={{
-            backgroundColor: "var(--card-bg)",
-            border: "1px solid var(--border-color)",
-          }}
-        >
+        <div className="rounded-2xl p-6 sm:p-8" style={{}}>
           <div className="flex flex-col sm:flex-row items-center gap-6">
             <div
               className="w-32 h-32 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0"
@@ -100,6 +148,8 @@ export default function DeveloperDetailPage() {
                 <Image
                   src={currentDeveloper.logo}
                   alt={currentDeveloper.name}
+                  width={128}
+                  height={128}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -137,32 +187,32 @@ export default function DeveloperDetailPage() {
                     />
                   </svg>
                   <span style={{ color: "var(--text-secondary)" }}>
-                    {currentDeveloper.cards?.length || 0} объектов
+                    {currentDeveloper.cards.length}{" "}
+                    {currentDeveloper.cards.length === 1 ? "объект" : "объекта"}
                   </span>
                 </div>
               </div>
 
               <button
                 onClick={handleSubscriptionToggle}
-                className={`w-full sm:w-auto px-6 py-3 rounded-lg font-[family-name:var(--font-stetica-bold)] transition-all duration-300 ${
-                  currentDeveloper.is_subscribed
-                    ? "hover:opacity-80"
-                    : "hover:opacity-90"
+                disabled={isLoadingSubscription}
+                className={`cursor-pointer max-w-[340px] sm:w-auto px-6 py-3 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                  isLoadingSubscription ? "opacity-60 cursor-not-allowed" : "hover:opacity-90 active:scale-[0.98]"
                 }`}
                 style={{
-                  backgroundColor: currentDeveloper.is_subscribed
-                    ? "var(--bg-secondary)"
-                    : "var(--accent-primary)",
-                  color: currentDeveloper.is_subscribed
-                    ? "var(--text-primary)"
-                    : "#FFFFFF",
+                  backgroundColor: "transparent",
                   border: currentDeveloper.is_subscribed
                     ? "1px solid var(--border-color)"
-                    : "none",
+                    : "2px solid var(--accent-primary)",
+                  color: currentDeveloper.is_subscribed
+                    ? "var(--text-secondary)"
+                    : "var(--accent-primary)",
                 }}
               >
-                {currentDeveloper.is_subscribed ? (
-                  <span className="flex items-center justify-center gap-2">
+                {isLoadingSubscription ? (
+                  <span>Загрузка...</span>
+                ) : currentDeveloper.is_subscribed ? (
+                  <>
                     <svg
                       className="w-5 h-5"
                       viewBox="0 0 24 24"
@@ -177,26 +227,10 @@ export default function DeveloperDetailPage() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Вы подписаны
-                  </span>
+                    <span>Вы подписаны</span>
+                  </>
                 ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg
-                      className="w-5 h-5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M12 5V19M5 12H19"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Подписаться
-                  </span>
+                  <span>Подписаться</span>
                 )}
               </button>
             </div>
@@ -210,7 +244,7 @@ export default function DeveloperDetailPage() {
           Объекты застройщика
         </h2>
 
-        {/* {currentDeveloper.cards && currentDeveloper.cards.length > 0 ? (
+        {currentDeveloper.cards && currentDeveloper.cards.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-[30px] w-full">
             {currentDeveloper.cards.map((card) => (
               <CardItemPreview key={card.id} card={card} />
@@ -218,15 +252,15 @@ export default function DeveloperDetailPage() {
           </div>
         ) : (
           <div
-            className="text-center py-10 rounded-2xl"
+            className="text-center py-20 rounded-2xl"
             style={{
               backgroundColor: "var(--card-bg)",
               color: "var(--text-secondary)",
             }}
           >
-            У этого застройщика пока нет объектов
+            <p className="text-lg">У этого застройщика пока нет объектов</p>
           </div>
-        )} */}
+        )}
       </div>
     </div>
   );

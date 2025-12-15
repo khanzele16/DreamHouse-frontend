@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
+import { useState } from "react";
 import type { ICard } from "@/app/types/models";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
 import {
   subscribeToDeveloper,
   unsubscribeFromDeveloper,
 } from "@/app/shared/redux/slices/developers";
+import { CallRequestModal } from "@/app/components/CallRequestModal";
+import Link from "next/link";
 
 interface AsidePanelProps {
   card: ICard;
@@ -17,13 +19,12 @@ interface AsidePanelProps {
 export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
   const dispatch = useAppDispatch();
   const { isAuth } = useAppSelector((state) => state.auth);
-  const { developers } = useAppSelector((state) => state.developers);
 
-  const developer = developers.find((dev) => dev.id === card.developer.id);
   const [isSubscribed, setIsSubscribed] = useState(
-    developer?.is_subscribed || false
+    card.developer.is_subscribed || false
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubscriptionToggle = async () => {
     if (!isAuth) {
@@ -65,7 +66,10 @@ export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
             }}
           >
             {formattedPrice} ₽{" "}
-            <span className="text-sm" style={{ color: "var(--text-secondary)" }}>
+            <span
+              className="text-sm"
+              style={{ color: "var(--text-secondary)" }}
+            >
               / {card.area} м²
             </span>
           </p>
@@ -73,10 +77,12 @@ export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
 
         <div className="flex flex-col gap-3">
           <button
+            onClick={() => setIsModalOpen(true)}
             className="w-full py-3 rounded-lg text-white font-medium transition-colors cursor-pointer"
             style={{ backgroundColor: "var(--accent-primary)" }}
             onMouseEnter={(e) =>
-              (e.currentTarget.style.backgroundColor = "var(--accent-secondary)")
+              (e.currentTarget.style.backgroundColor =
+                "var(--accent-secondary)")
             }
             onMouseLeave={(e) =>
               (e.currentTarget.style.backgroundColor = "var(--accent-primary)")
@@ -97,47 +103,93 @@ export function AsidePanel({ card, formattedPrice }: AsidePanelProps) {
         </div>
 
         <div
-          className="mt-2 p-3 rounded-lg flex items-center gap-3"
+          className="mt-2 p-4 rounded-lg flex flex-col gap-3"
           style={{
             backgroundColor: "var(--bg-secondary)",
             transition: "background-color 0.3s ease",
           }}
         >
-          <div className="flex-1 flex items-center flex-row">
-            <Image
-              src={card.developer.logo}
-              alt={card.developer.name}
-              width={50}
-              height={50}
-              className="rounded-full"
-            />
-            <div className="flex flex-col ml-3">
-              <p className="font-medium" style={{ color: "var(--text-primary)" }}>
-                {card.developer.name}
-              </p>
-              <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                {card.owner}
-              </p>
+          <Link
+            className="cursor-pointer"
+            href={`/developers/${card.developer.id}`}
+          >
+            <div className="flex items-center gap-3">
+              <div className="relative w-12 h-12 flex-shrink-0">
+                <Image
+                  src={card.developer.logo}
+                  alt={card.developer.name}
+                  fill
+                  sizes="48px"
+                  className="rounded-full object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p
+                  className="font-medium truncate"
+                  style={{ color: "var(--text-primary)" }}
+                >
+                  {card.developer.name}
+                </p>
+                <p
+                  className="text-sm truncate"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {card.owner}
+                </p>
+              </div>
             </div>
-          </div>
+          </Link>
           <button
             onClick={handleSubscriptionToggle}
             disabled={isLoading}
-            className="px-4 py-2 rounded-lg cursor-pointer transition-all"
+            className={`w-full py-2.5 rounded-lg font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+              isLoading
+                ? "opacity-60 cursor-not-allowed"
+                : "hover:opacity-90 active:scale-[0.98]"
+            }`}
             style={{
-              backgroundColor: isSubscribed
-                ? "var(--accent-primary)"
-                : "var(--card-bg)",
-              border: "1px solid var(--border-color)",
-              color: isSubscribed ? "white" : "var(--text-primary)",
-              opacity: isLoading ? 0.6 : 1,
-              cursor: isLoading ? "not-allowed" : "pointer",
+              backgroundColor: "transparent",
+              border: isSubscribed
+                ? "1px solid var(--border-color)"
+                : "2px solid var(--accent-primary)",
+              color: isSubscribed
+                ? "var(--text-secondary)"
+                : "var(--accent-primary)",
             }}
           >
-            {isLoading ? "..." : isSubscribed ? "Отписаться" : "Подписаться"}
+            {isLoading ? (
+              <span>Загрузка...</span>
+            ) : isSubscribed ? (
+              <>
+                <svg
+                  className="w-5 h-5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M20 6L9 17L4 12"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <span>Вы подписаны</span>
+              </>
+            ) : (
+              <span>Подписаться</span>
+            )}
           </button>
         </div>
       </div>
+
+      <CallRequestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        apartmentTitle={card.title}
+        cardId={card.id}
+      />
     </aside>
   );
 }

@@ -104,7 +104,7 @@ export const unsubscribeFromDeveloper = createAsyncThunk<
     }
 
     await axios.delete(
-      `https://api.dreamhouse05.com/api/developers/${developerId}/subscribe/`,
+      `${API_BASE_URL}/developers/${developerId}/subscribe/`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
@@ -131,7 +131,7 @@ export const fetchMySubscriptions = createAsyncThunk<IDeveloperDetail[]>(
       }
 
       const { data } = await axios.get<IDeveloperDetail[]>(
-        "https://api.dreamhouse05.com/api/developers/me/subscriptions/",
+        `${API_BASE_URL}/developers/me/subscriptions/`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -153,7 +153,7 @@ const initialState: IDevelopersSliceState = {
   developers: [],
   currentDeveloper: null,
   subscriptions: [],
-  loading: false,
+  loading: true,
   error: null,
 };
 

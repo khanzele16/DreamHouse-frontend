@@ -1,9 +1,19 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { ILoginRequest, ILoginResponse, IRegisterRequest, IRegisterResponse } from "@/app/types/requests";
 
-export const authApi = createApi({
-  reducerPath: "api/auth",
-  baseQuery: fetchBaseQuery({ baseUrl: "http://188.120.245.100/api" }),
+export const apiSlice = createApi({
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: "http://188.120.245.100/api",
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
+  tagTypes: ['Notifications'],
   endpoints: (build) => ({
     login: build.mutation<ILoginResponse, ILoginRequest>({
       query: (credentials) => ({
@@ -22,4 +32,5 @@ export const authApi = createApi({
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation } = authApi;
+export const authApi = apiSlice;
+export const { useLoginMutation, useRegisterMutation } = apiSlice;

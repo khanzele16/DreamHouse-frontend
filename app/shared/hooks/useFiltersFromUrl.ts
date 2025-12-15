@@ -4,9 +4,6 @@ import { ICardFilters } from "@/app/types";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-/**
- * Парсит URL параметры в объект фильтров
- */
 export function parseFiltersFromUrl(
   searchParams: URLSearchParams
 ): ICardFilters {

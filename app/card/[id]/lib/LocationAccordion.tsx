@@ -1,7 +1,7 @@
-import React from "react";
+import { useState } from "react";
 
 export function LocationAccordion({ latitude, longitude, address }: { latitude?: number; longitude?: number; address?: string }) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const isValid =
     typeof latitude === "number" &&
     typeof longitude === "number" &&

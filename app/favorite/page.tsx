@@ -1,11 +1,12 @@
 "use client";
 
-import { CardItemPreview } from "../components/CardItemPreview";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../shared/redux/hooks";
-import { fetchFavoriteCards } from "../shared/redux/slices/cards";
-import type { ICard } from "../types/models";
 import ProtectedRoute from "../components/ProtectedRoute";
+import { useEffect } from "react";
+import type { ICard } from "../types/models";
+import { CardItemPreview } from "../components/CardItemPreview";
+import { CardSkeleton } from "../components/CardSkeleton";
+import { fetchFavoriteCards } from "../shared/redux/slices/cards";
+import { useAppDispatch, useAppSelector } from "../shared/redux/hooks";
 
 function FavoriteContent() {
   const dispatch = useAppDispatch();
@@ -35,14 +36,10 @@ function FavoriteContent() {
         </h1>
 
         {loading && (
-          <div
-            className="text-center py-10"
-            style={{
-              color: "var(--text-secondary)",
-              transition: "color 0.3s ease",
-            }}
-          >
-            Загрузка избранных карточек...
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 lg:gap-[30px] w-full">
+            {[...Array(6)].map((_, i) => (
+              <CardSkeleton key={i} />
+            ))}
           </div>
         )}
 

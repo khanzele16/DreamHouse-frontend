@@ -10,18 +10,25 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
-  const { isAuth, loading } = useAppSelector((state) => state.auth);
+  const { isAuth, loading, initialized } = useAppSelector(
+    (state) => state.auth
+  );
 
   useEffect(() => {
-    if (!loading && !isAuth) {
+    if (initialized && !isAuth && !loading) {
       router.push("/login");
     }
-  }, [isAuth, loading, router]);
+  }, [isAuth, loading, initialized, router]);
 
-  if (loading) {
+  if (!initialized || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">Загрузка...</div>
+      <div
+        className="flex items-center justify-center min-h-screen"
+        style={{ backgroundColor: "var(--bg-primary)" }}
+      >
+        <div className="text-center" style={{ color: "var(--text-secondary)" }}>
+          Загрузка...
+        </div>
       </div>
     );
   }

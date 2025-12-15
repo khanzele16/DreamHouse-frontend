@@ -2,18 +2,22 @@
 
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
-import { authMe } from "@/app/shared/redux/slices/auth";
+import { fetchUser, setInitialized } from "@/app/shared/redux/slices/auth";
 
 export const AuthChecker = () => {
   const dispatch = useAppDispatch();
-  const { isAuth } = useAppSelector((state) => state.auth);
+  const { initialized } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token && !isAuth) {
-      dispatch(authMe());
+    if (!initialized) {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        dispatch(fetchUser());
+      } else {
+        dispatch(setInitialized());
+      }
     }
-  }, [dispatch, isAuth]);
+  }, [dispatch, initialized]);
 
   return null;
 };

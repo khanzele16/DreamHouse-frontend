@@ -12,6 +12,7 @@ export interface IAuthSliceState {
     user: IUser | null;
     loading: boolean;
     error: string | null;
+    initialized: boolean;
 }
 
 export interface ICardsSliceState {
@@ -22,6 +23,9 @@ export interface ICardsSliceState {
     searchLoading: boolean;
     error: string | null;
     isFavoritesPage: boolean;
+    hasMore: boolean;
+    page: number;
+    totalCount: number;
 }
 
 export interface IDevelopersSliceState {

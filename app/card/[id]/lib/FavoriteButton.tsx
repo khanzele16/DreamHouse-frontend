@@ -1,16 +1,13 @@
-import React from "react";
-
 export function FavoriteButton({ isFavorite, onToggle }: { isFavorite: boolean; onToggle: () => void }) {
   return (
     <button
-      className="flex items-center gap-3 px-8 py-4 rounded-2xl font-[family-name:var(--font-stetica-bold)] text-base w-full justify-center transition-all hover:scale-[1.02] active:scale-[0.98]"
+      className="flex items-center gap-3 px-8 py-4 rounded-2xl font-[family-name:var(--font-stetica-bold)] text-base w-full justify-center cursor-pointer "
       aria-pressed={isFavorite}
       onClick={onToggle}
       style={{
         backgroundColor: isFavorite ? "#fee2e2" : "var(--bg-secondary)",
         color: isFavorite ? "#dc2626" : "var(--accent-primary)",
         border: `2px solid ${isFavorite ? "#fca5a5" : "var(--border-color)"}`,
-        transition: "all 0.3s ease",
         boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
       }}
     >

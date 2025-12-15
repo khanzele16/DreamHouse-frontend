@@ -30,12 +30,10 @@ export function CardItemPreview({ card }: CardItemPreviewProps): ReactElement {
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
     if (!isAuth) {
       alert("Войдите в систему, чтобы добавить в избранное");
       return;
     }
-    
     dispatch(
       toggleFavorite({ id: card.id, is_favorite: card.is_favorite || false })
     );

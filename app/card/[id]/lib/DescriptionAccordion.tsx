@@ -1,7 +1,7 @@
-import React from "react";
+import { useState } from "react";
 
 export function DescriptionAccordion({ description }: { description?: string }) {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   if (!description || description.trim() === "") {
     return null;
   }

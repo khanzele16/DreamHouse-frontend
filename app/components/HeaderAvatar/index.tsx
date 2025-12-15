@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  ChevronDown,
-  CircleUser,
-  User,
-  Heart,
-  LogOut,
-} from "lucide-react";
+import { ChevronDown, CircleUser, User, Heart, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
@@ -44,14 +38,14 @@ export const HeaderAvatar = ({ variant = "desktop" }: HeaderAvatarProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { user, isAuth } = useAppSelector((state) => state.auth);
+  const { user, isAuth, initialized } = useAppSelector((state) => state.auth);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (isAuth && !user) {
+    if (isAuth && !user && initialized) {
       dispatch(fetchUser());
     }
-  }, [dispatch, isAuth, user]);
+  }, [dispatch, isAuth, user, initialized]);
 
   const handleLogout = () => {
     dispatch(logout());

@@ -1,4 +1,3 @@
-import React from "react";
 import type { ICard } from "@/app/types/models";
 
 export function RecommendationsBlock({ items }: { items: ICard[] }) {

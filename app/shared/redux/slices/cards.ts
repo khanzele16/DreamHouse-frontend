@@ -1,45 +1,70 @@
-import axios from "axios";
+import axiosInstance from "@/app/shared/config/axios";
 import { API_BASE_URL } from "@/app/shared/config/axios";
 import { ICardsSliceState } from "@/app/types/redux";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { ICard } from "@/app/types/models";
 import { ICardFilters } from "@/app/types";
 
-export const fetchCards = createAsyncThunk<ICard[], ICardFilters | undefined>(
-  "cards/fetchCards",
-  async (filters, { rejectWithValue }) => {
-    try {
-      const params = new URLSearchParams();
+interface FetchCardsResponse {
+  results?: ICard[];
+  count?: number;
+  next?: string | null;
+  previous?: string | null;
+}
 
-      if (filters) {
-        Object.entries(filters).forEach(([key, value]) => {
-          if (value !== undefined && value !== null && value !== "") {
-            params.append(key, String(value));
-          }
-        });
-      }
+export const fetchCards = createAsyncThunk<
+  FetchCardsResponse & { append?: boolean },
+  ICardFilters & { page?: number; append?: boolean }
+>("cards/fetchCards", async (filters, { rejectWithValue }) => {
+  try {
+    const params = new URLSearchParams();
+    const { page = 1, append, ...restFilters } = filters || {};
 
-      const queryString = params.toString();
-      const url = `${API_BASE_URL}/cards/${queryString ? `?${queryString}` : ""}`;
-      const { data } = await axios.get<ICard[]>(url);
-      return data;
-    } catch (error: unknown) {
-      const axiosError = error as {
-        response?: { data?: unknown };
-        message?: string;
-      };
-      return rejectWithValue(
-        axiosError.message || "Не удалось загрузить карточки"
-      );
+    params.append("page", String(page));
+    params.append("page_size", "20");
+
+    if (restFilters) {
+      Object.entries(restFilters).forEach(([key, value]) => {
+        if (
+          value !== undefined &&
+          value !== null &&
+          String(value).trim() !== ""
+        ) {
+          params.append(key, String(value));
+        }
+      });
     }
+
+    const queryString = params.toString();
+    const url = `${API_BASE_URL}/cards/${queryString ? `?${queryString}` : ""}`;
+    const { data } = await axiosInstance.get<FetchCardsResponse | ICard[]>(url);
+    if (Array.isArray(data)) {
+      return {
+        results: data,
+        count: data.length,
+        next: null,
+        previous: null,
+        append: append || false,
+      };
+    }
+
+    return { ...data, append: append || false };
+  } catch (error: unknown) {
+    const axiosError = error as {
+      response?: { data?: unknown };
+      message?: string;
+    };
+    return rejectWithValue(
+      axiosError.message || "Не удалось загрузить карточки"
+    );
   }
-);
+});
 
 export const fetchCardById = createAsyncThunk<ICard, number>(
   "cards/fetchCardById",
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get<ICard>(
+      const { data } = await axiosInstance.get<ICard>(
         `${API_BASE_URL}/cards/${id}/`
       );
       return data;
@@ -62,7 +87,7 @@ export const searchCards = createAsyncThunk<ICard[], string>(
       if (!query || query.trim().length === 0) {
         return [];
       }
-      const { data } = await axios.get<ICard[]>(
+      const { data } = await axiosInstance.get<ICard[]>(
         `${API_BASE_URL}/cards/search/?q=${encodeURIComponent(query)}`
       );
       return data;
@@ -84,12 +109,9 @@ export const fetchFavoriteCards = createAsyncThunk<ICard[]>(
       if (!token) {
         return rejectWithValue("Необходима авторизация");
       }
-      const { data } = await axios.get<Array<{ id: number; card: ICard }>>(
-        `${API_BASE_URL}/cards/favorites/me/`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const { data } = await axiosInstance.get<
+        Array<{ id: number; card: ICard }>
+      >(`${API_BASE_URL}/cards/favorites/me/`);
       return data.map((item) => item.card);
     } catch (error: unknown) {
       const axiosError = error as {
@@ -114,21 +136,10 @@ export const toggleFavorite = createAsyncThunk<
     }
 
     if (is_favorite) {
-      await axios.delete(
-        `https://api.dreamhouse05.com/api/cards/${id}/favorite/`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axiosInstance.delete(`${API_BASE_URL}/cards/${id}/favorite/`);
       return { id, is_favorite: false };
     } else {
-      await axios.post(
-        `https://api.dreamhouse05.com/api/cards/${id}/favorite/`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      await axiosInstance.post(`${API_BASE_URL}/cards/${id}/favorite/`, {});
       return { id, is_favorite: true };
     }
   } catch (error: unknown) {
@@ -144,10 +155,13 @@ const initialState: ICardsSliceState = {
   cards: [],
   currentCard: null,
   searchResults: [],
-  loading: false,
+  loading: true,
   searchLoading: false,
   error: null,
   isFavoritesPage: false,
+  hasMore: true,
+  page: 1,
+  totalCount: 0,
 };
 
 const cards = createSlice({
@@ -159,6 +173,12 @@ const cards = createSlice({
     },
     clearSearchResults(state) {
       state.searchResults = [];
+    },
+    resetPagination(state) {
+      state.cards = [];
+      state.page = 1;
+      state.hasMore = true;
+      state.totalCount = 0;
     },
     updateCardFavorite(
       state,
@@ -189,7 +209,22 @@ const cards = createSlice({
       })
       .addCase(fetchCards.fulfilled, (state, action) => {
         state.loading = false;
-        state.cards = action.payload;
+        const {
+          results = [],
+          count = 0,
+          next = null,
+          append = false,
+        } = action.payload;
+
+        if (append) {
+          state.cards = [...state.cards, ...results];
+        } else {
+          state.cards = results;
+        }
+
+        state.totalCount = count;
+        state.hasMore = next !== null;
+        state.page = append ? state.page + 1 : 1;
         state.error = null;
         state.isFavoritesPage = false;
       })
@@ -262,6 +297,10 @@ const cards = createSlice({
   },
 });
 
-export const { clearError, clearSearchResults, updateCardFavorite } =
-  cards.actions;
+export const {
+  clearError,
+  clearSearchResults,
+  resetPagination,
+  updateCardFavorite,
+} = cards.actions;
 export default cards.reducer;

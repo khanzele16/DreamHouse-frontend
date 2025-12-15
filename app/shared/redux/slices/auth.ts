@@ -1,4 +1,5 @@
-import axios from "@/app/shared/config/axios";
+import axiosInstance from "@/app/shared/config/axios";
+import { API_BASE_URL } from "@/app/shared/config/axios";
 import { IAuthSliceState } from "@/app/types/redux";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
@@ -22,7 +23,7 @@ const getErrorMessage = (
       REGISTER_FAILED: "Ошибка регистрации",
     },
     login: {
-      INVALID_CREDENTIALS: "Неверный email или пароль",
+      INVALID_CREDENTIALS: "Не удалось войти. Телефон или пароль неверны",
       USER_NOT_FOUND: "Пользователь не найден",
       ACCOUNT_BLOCKED: "Аккаунт заблокирован",
       INVALID_EMAIL: "Некорректный email адрес",
@@ -42,7 +43,10 @@ export const register = createAsyncThunk<IRegisterResponse, IRegisterRequest>(
   "auth/register",
   async (userData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post("/users/register/", userData);
+      const { data } = await axiosInstance.post(
+        `${API_BASE_URL}/users/register/`,
+        userData
+      );
       return data;
     } catch (error: unknown) {
       const axiosError = error as { response?: { data?: IRegisterResponse } };
@@ -61,14 +65,31 @@ export const login = createAsyncThunk<ILoginResponse, ILoginRequest>(
   "auth/login",
   async (userData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post("/token/", userData);
+      const { data } = await axiosInstance.post(
+        `${API_BASE_URL}/token/`,
+        userData
+      );
       if (data.access && data.refresh) {
         localStorage.setItem("access_token", data.access);
         localStorage.setItem("refresh_token", data.refresh);
       }
       return data;
     } catch (error: unknown) {
-      const axiosError = error as { response?: { data?: ILoginResponse } };
+      const axiosError = error as { 
+        response?: { 
+          data?: ILoginResponse;
+          status?: number;
+        } 
+      };
+      
+      if (axiosError.response?.status === 400 || axiosError.response?.status === 401) {
+        return rejectWithValue({
+          ok: false,
+          CODE: "INVALID_CREDENTIALS",
+          reason: "INVALID_CREDENTIALS",
+        });
+      }
+      
       return rejectWithValue(
         axiosError.response?.data || {
           ok: false,
@@ -90,11 +111,11 @@ export const fetchUser = createAsyncThunk(
         localStorage.removeItem("refresh_token");
         return rejectWithValue("No token");
       }
-      const { data } = await axios.get("/users/me/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axiosInstance.get(`${API_BASE_URL}/users/me/`);
       if (data.ok && data.user) {
         return data.user;
+      } else if (data.id) {
+        return data;
       }
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
@@ -102,8 +123,15 @@ export const fetchUser = createAsyncThunk(
     } catch (error: unknown) {
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
-      const axiosError = error as { response?: { data?: unknown } };
-      return rejectWithValue(axiosError.response?.data);
+      const axiosError = error as {
+        response?: { data?: unknown; status?: number };
+        message?: string;
+      };
+      return rejectWithValue(
+        axiosError.message ||
+          axiosError.response?.data ||
+          "Failed to fetch user"
+      );
     }
   }
 );
@@ -132,6 +160,7 @@ const initialState: IAuthSliceState = {
   user: null,
   loading: false,
   error: null,
+  initialized: false,
 };
 
 const auth = createSlice({
@@ -142,11 +171,15 @@ const auth = createSlice({
       state.isAuth = false;
       state.user = null;
       state.error = null;
+      state.initialized = true;
       localStorage.removeItem("access_token");
       localStorage.removeItem("refresh_token");
     },
     clearError(state) {
       state.error = null;
+    },
+    setInitialized(state) {
+      state.initialized = true;
     },
   },
   extraReducers: (builder) => {
@@ -186,6 +219,7 @@ const auth = createSlice({
         state.loading = false;
         if (action.payload.access && action.payload.refresh) {
           state.isAuth = true;
+          state.initialized = true;
           state.error = null;
         } else {
           state.error =
@@ -214,11 +248,13 @@ const auth = createSlice({
         state.loading = false;
         state.user = action.payload;
         state.isAuth = true;
+        state.initialized = true;
       })
       .addCase(fetchUser.rejected, (state) => {
         state.loading = false;
         state.user = null;
         state.isAuth = false;
+        state.initialized = true;
       })
       .addCase(authMe.pending, (state) => {
         state.loading = true;
@@ -235,5 +271,5 @@ const auth = createSlice({
   },
 });
 
-export const { logout, clearError } = auth.actions;
+export const { logout, clearError, setInitialized } = auth.actions;
 export default auth.reducer;

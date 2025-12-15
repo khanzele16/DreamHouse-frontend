@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 
 export interface CharacteristicItem {
   label: string;
@@ -14,7 +14,7 @@ export function CharacteristicsAccordion({
   right: CharacteristicItem[];
   open?: boolean;
 }) {
-  const [isOpen, setIsOpen] = React.useState(open);
+  const [isOpen, setIsOpen] = useState(open);
   return (
     <details open={isOpen} className="mb-4 rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--card-bg)", border: "1px solid var(--border-color)", transition: "all 0.3s ease" }}>
       <summary
