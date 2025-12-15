@@ -47,6 +47,7 @@ function RegisterContent() {
           name: data.name,
           phone_number: phoneDigits,
           password: data.password,
+          password_confirm: data.confirmPassword,
         })
       ).unwrap();
 

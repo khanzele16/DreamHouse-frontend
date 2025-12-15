@@ -2,6 +2,7 @@ export interface IRegisterRequest {
     name: string;
     phone_number: string;
     password: string;
+    password_confirm: string;
 }
 
 export interface ILoginRequest {
