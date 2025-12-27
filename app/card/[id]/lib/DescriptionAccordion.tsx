@@ -7,7 +7,7 @@ export function DescriptionAccordion({ description }: { description?: string }) 
   }
   const paragraphs = description.split(/\n+/).filter(Boolean);
   return (
-    <details open={isOpen} className="mb-4 rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--card-bg)", border: "1px solid var(--border-color)", transition: "all 0.3s ease" }}>
+    <details open={isOpen} className="mb-4 overflow-hidden rounded-lg" style={{ backgroundColor: "rgba(var(--accent-secondary-rgb))", transition: "all 0.3s ease" }}>
       <summary 
         className="flex items-center justify-between px-6 py-4 cursor-pointer select-none font-[family-name:var(--font-stetica-bold)] text-lg"
         onClick={(e) => {

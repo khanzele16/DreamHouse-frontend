@@ -28,10 +28,8 @@ function LoginContent() {
     dispatch(clearError());
 
     try {
-      // Извлекаем только цифры из номера телефона
       let phoneDigits = data.identifier.replace(/\D/g, "");
       
-      // Заменяем первую цифру 7 на 8
       if (phoneDigits.startsWith("7")) {
         phoneDigits = "8" + phoneDigits.slice(1);
       }
@@ -228,9 +226,9 @@ function LoginContent() {
                 placeholder="+7 (___) ___-__-__"
                 className="font-[family-name:var(--font-stetica-regular)] mt-2 block w-full rounded-lg px-4 py-3 focus:outline-none focus:ring-2"
                 style={{
-                  backgroundColor: "var(--card-bg)",
+                  backgroundColor: "white",
                   borderColor: "var(--border-color)",
-                  color: "var(--text-primary)",
+                  color: "black",
                   border: "1px solid",
                   transition: "all 0.3s ease",
                 }}
@@ -293,9 +291,9 @@ function LoginContent() {
                   placeholder="Минимум 8 символов"
                   className="font-[family-name:var(--font-stetica-regular)] block w-full rounded-lg px-4 py-3 pr-16 focus:outline-none focus:ring-2"
                   style={{
-                    backgroundColor: "var(--card-bg)",
+                    backgroundColor: "white",
                     borderColor: "var(--border-color)",
-                    color: "var(--text-primary)",
+                    color: "black",
                     border: "1px solid",
                     transition: "all 0.3s ease",
                   }}

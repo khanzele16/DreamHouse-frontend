@@ -67,12 +67,18 @@ export const fetchCardById = createAsyncThunk<ICard, number>(
       const { data } = await axiosInstance.get<ICard>(
         `${API_BASE_URL}/cards/${id}/`
       );
+      if (!data || typeof data !== 'object') {
+        return rejectWithValue("Получены некорректные данные карточки");
+      }
       return data;
     } catch (error: unknown) {
       const axiosError = error as {
         response?: { data?: unknown };
         message?: string;
       };
+      if (axiosError.message?.includes('JSON')) {
+        return rejectWithValue("Ошибка обработки данных с сервера");
+      }
       return rejectWithValue(
         axiosError.message || "Не удалось загрузить карточку"
       );

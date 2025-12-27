@@ -6,7 +6,6 @@ import { ModalShell } from "@/app/components/Filter/ui/ModalShell";
 import { AIModal } from "@/app/components/AIModal";
 import { ICardFilters } from "@/app/types";
 import { useCallback, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
 import { useAppSelector } from "@/app/shared/redux/hooks";
 
 interface FiltersPanelProps {
@@ -18,8 +17,6 @@ export default function FiltersPanel({
   onApplyFilters,
   currentFilters = {},
 }: FiltersPanelProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const { isAuth } = useAppSelector((state) => state.auth);
   const [isOpen, setIsOpen] = useState(false);
   const [isAIOpen, setIsAIOpen] = useState(false);
@@ -28,20 +25,6 @@ export default function FiltersPanel({
   useEffect(() => {
     setFilters(currentFilters);
   }, [currentFilters]);
-
-  useEffect(() => {
-    if (searchParams.get('AI') !== null) {
-      if (isAuth) {
-        setIsAIOpen(true);
-      } else {
-        alert('Для использования ИИ-помощника необходимо войти в систему');
-        const params = new URLSearchParams(searchParams);
-        params.delete('AI');
-        const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
-        router.replace(newUrl);
-      }
-    }
-  }, [searchParams, isAuth, router]);
 
   const handleClose = useCallback(() => {
     setIsOpen(false);
@@ -62,19 +45,11 @@ export default function FiltersPanel({
       return;
     }
     setIsAIOpen(true);
-    const params = new URLSearchParams(searchParams);
-    params.set('AI', 'true');
-    router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, searchParams, isAuth]);
+  }, [isAuth]);
 
   const handleAIClose = useCallback(() => {
     setIsAIOpen(false);
-    // Удаляем параметр AI из URL
-    const params = new URLSearchParams(searchParams);
-    params.delete('AI');
-    const newUrl = params.toString() ? `?${params.toString()}` : window.location.pathname;
-    router.push(newUrl, { scroll: false });
-  }, [router, searchParams]);
+  }, []);
 
   return (
     <div className="flex items-center gap-3">

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { ILoginRequest, ILoginResponse, IRegisterRequest, IRegisterResponse } from "@/app/types/requests";
+import { ILoginRequest, ILoginResponse, IRegisterRequest, IRegisterResponse, IDeleteAccountRequest, IDeleteAccountResponse, IUpdateProfilePhotoResponse } from "@/app/types/requests";
 
 export const apiSlice = createApi({
   reducerPath: "api",
@@ -29,8 +29,22 @@ export const apiSlice = createApi({
         body: credentials,
       }),
     }),
+    deleteAccount: build.mutation<IDeleteAccountResponse, IDeleteAccountRequest>({
+      query: (data) => ({
+        url: "/users/delete-account/",
+        method: "DELETE",
+        body: data,
+      }),
+    }),
+    updateProfilePhoto: build.mutation<IUpdateProfilePhotoResponse, FormData>({
+      query: (formData) => ({
+        url: "/users/update-profile/",
+        method: "PUT",
+        body: formData,
+      }),
+    }),
   }),
 });
 
 export const authApi = apiSlice;
-export const { useLoginMutation, useRegisterMutation } = apiSlice;
+export const { useLoginMutation, useRegisterMutation, useDeleteAccountMutation, useUpdateProfilePhotoMutation } = apiSlice;

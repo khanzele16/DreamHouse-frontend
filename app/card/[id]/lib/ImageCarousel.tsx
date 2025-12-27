@@ -18,9 +18,14 @@ type MediaItem =
   | { type: 'video'; src: string; id?: number };
 
 export function ImageCarousel({ images, videos = [], title }: ImageCarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    align: 'start',
+    skipSnaps: false,
+  });
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const mediaItems: MediaItem[] = [
     ...videos.map(vid => ({ type: 'video' as const, src: vid.video, id: vid.id })),
@@ -51,14 +56,36 @@ export function ImageCarousel({ images, videos = [], title }: ImageCarouselProps
     if (!emblaApi) return;
     onSelect();
     emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    
     return () => {
       emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
     };
   }, [emblaApi, onSelect]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    const handleResize = () => {
+      emblaApi.reInit();
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [emblaApi]);
 
   const lightboxSlides = images.map((img) => ({
     src: getValidImageSrc(img.image),
   }));
+
+  const handleImageClick = useCallback((itemSrc: string) => {
+    const imageIndex = images.findIndex(img => img.image === itemSrc);
+    if (imageIndex !== -1) {
+      setLightboxIndex(imageIndex);
+      setLightboxOpen(true);
+    }
+  }, [images]);
 
   return (
     <>
@@ -68,17 +95,14 @@ export function ImageCarousel({ images, videos = [], title }: ImageCarouselProps
             {mediaItems.map((item, index) => (
               <div
                 key={index}
-                className="flex-[0_0_100%] min-w-0 relative aspect-[16/9] lg:aspect-[21/9]"
+                className="flex-[0_0_100%] min-w-0 relative"
+                style={{ aspectRatio: '16/9' }}
               >
                 {(item.type === 'image') ? (
                   <div 
-                    className="cursor-zoom-in w-full h-full"
+                    className="cursor-zoom-in w-full h-full relative"
                     onClick={() => {
-                      const imageIndex = images.findIndex(img => img.image === item.src);
-                      if (imageIndex !== -1) {
-                        setSelectedIndex(imageIndex);
-                        setLightboxOpen(true);
-                      }
+                      handleImageClick(item.src);
                     }}
                   >
                     <Image
@@ -179,7 +203,7 @@ export function ImageCarousel({ images, videos = [], title }: ImageCarouselProps
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         slides={lightboxSlides}
-        index={selectedIndex}
+        index={lightboxIndex}
       />
     </>
   );

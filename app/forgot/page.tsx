@@ -22,7 +22,7 @@ export default function Login() {
           <form className="space-y-5">
             <label className="block">
               <span className="text-[20px] text-gray-700">
-                Номер телефона / почта
+                Номер телефона
               </span>
               <input
                 value={identifier}

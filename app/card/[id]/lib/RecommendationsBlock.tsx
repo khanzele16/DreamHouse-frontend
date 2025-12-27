@@ -19,8 +19,8 @@ export function RecommendationsBlock({ items }: { items: ICard[] }) {
             <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 rounded-t-2xl" style={{ backgroundColor: "var(--bg-secondary)" }}></div>
             <div className="p-4 flex flex-col gap-2">
               <div className="text-lg font-[family-name:var(--font-stetica-bold)]" style={{ color: "var(--text-primary)" }}>{item.price} ₽ / {item.area} м²</div>
-              <div className="text-base font-medium" style={{ color: "var(--text-primary)" }}>{item.title}</div>
-              <div className="text-sm" style={{ color: "var(--text-secondary)" }}>{item.address}</div>
+              <div className="text-base font-[family-name:var(--font-stetica-bold)]" style={{ color: "var(--text-primary)" }}>{item.title}</div>
+              <div className="text-sm font-[family-name:var(--font-stetica-regular)]" style={{ color: "var(--text-secondary)" }}>{item.address}</div>
               <button 
                 className="mt-2 w-full py-2.5 rounded-xl font-[family-name:var(--font-stetica-bold)] text-sm transition-all hover:opacity-90"
                 style={{

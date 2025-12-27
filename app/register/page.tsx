@@ -35,10 +35,8 @@ function RegisterContent() {
     setSuccessMessage(null);
 
     try {
-      // Извлекаем только цифры из номера телефона
       let phoneDigits = data.phone_number.replace(/\D/g, "");
       
-      // Заменяем первую цифру 7 на 8
       if (phoneDigits.startsWith("7")) {
         phoneDigits = "8" + phoneDigits.slice(1);
       }
@@ -52,21 +50,21 @@ function RegisterContent() {
         })
       ).unwrap();
 
-      if (result.ok && result.access && result.refresh) {
-        // Загружаем данные пользователя
-        await dispatch(fetchUser()).unwrap();
-        setSuccessMessage(
-          "Регистрация успешна! Перенаправляем на главную..."
-        );
-        setTimeout(() => router.push("/"), 1500);
-      } else if (result.ok) {
-        setSuccessMessage(
-          "Регистрация успешна! Перенаправляем на страницу входа..."
-        );
-        setTimeout(() => router.push("/login"), 2000);
+      // Успешная регистрация
+      if (result.access && result.refresh) {
+        // Если сервер вернул токены, загружаем пользователя
+        try {
+          await dispatch(fetchUser()).unwrap();
+        } catch {}
       }
-    } catch {
+      
+      setSuccessMessage(
+        "Регистрация успешна! Перенаправляем на главную..."
+      );
+      setTimeout(() => router.push("/"), 1500);
+    } catch (error) {
       // Ошибка уже обработана в Redux slice
+      console.error("Registration error:", error);
     }
   };
 
@@ -427,7 +425,7 @@ function RegisterContent() {
               </label>
             </div>
 
-            <div className="flex flex-col mt-6 lg:col-span-2 gap-y-3">
+            <div className="flex flex-col mt-6 gap-y-3">
               <button
                 type="submit"
                 disabled={loading}
@@ -438,7 +436,7 @@ function RegisterContent() {
                   transition: "background-color 0.3s ease, opacity 0.3s ease",
                 }}
               >
-                {loading ? "Регистрация..." : "Зарегистрироваться"}
+                {loading ? "Загрузка..." : "Регистрация"}
               </button>
 
               <p

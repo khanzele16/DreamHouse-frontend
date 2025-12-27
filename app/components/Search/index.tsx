@@ -70,10 +70,10 @@ export const Search = () => {
             setQuery(e.target.value);
             setShowResults(true);
           }}
-          placeholder="Искать квартиры в Махачкале"
+          placeholder="Искать квартиры в Dream House"
           className="w-full px-4 py-[9px] rounded-l-md focus:outline-none text-sm sm:text-base"
           style={{
-            backgroundColor: "var(--card-bg)",
+            backgroundColor: "transparent",
             color: "var(--text-primary)",
             border: "1px solid var(--border-color)",
             borderRight: 0,

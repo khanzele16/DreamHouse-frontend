@@ -8,33 +8,30 @@ export function Tabs({
   tabs: { key: string; label: string }[];
 }) {
   return (
-    <div className="flex gap-2 mb-6 overflow-x-auto pb-2" role="tablist">
-      {tabs.map((tab) => (
-        <button
-          key={tab.key}
-          role="tab"
-          aria-selected={active === tab.key}
-          className="px-5 py-2.5 rounded-full font-[family-name:var(--font-stetica-bold)] text-sm transition-all whitespace-nowrap"
-          onClick={() => onChange(tab.key)}
-          style={{
-            backgroundColor: active === tab.key ? "var(--accent-primary)" : "var(--bg-secondary)",
-            color: active === tab.key ? "white" : "var(--text-secondary)",
-            transition: "all 0.3s ease"
-          }}
-          onMouseEnter={(e) => {
-            if (active !== tab.key) {
-              e.currentTarget.style.backgroundColor = "var(--border-color)";
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (active !== tab.key) {
-              e.currentTarget.style.backgroundColor = "var(--bg-secondary)";
-            }
-          }}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
+<div
+  className="tabs-scroll flex gap-3 mb-4 overflow-x-auto pb-2"
+  role="tablist"
+>
+  {tabs.map((tab) => (
+    <button
+      key={tab.key}
+      role="tab"
+      aria-selected={active === tab.key}
+      className="cursor-pointer px-5 py-1.5 rounded-lg font-[family-name:var(--font-stetica-regular)] text-base transition-all whitespace-nowrap"
+      onClick={() => onChange(tab.key)}
+      style={{
+        backgroundColor: "transparent",
+        border:
+          active === tab.key
+            ? "1.5px solid var(--accent-primary)"
+            : "1.5px solid var(--border-color)",
+        color: "var(--text-primary)",
+      }}
+    >
+      {tab.label}
+    </button>
+  ))}
+</div>
+
   );
 }

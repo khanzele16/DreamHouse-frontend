@@ -70,15 +70,9 @@ export function NotificationBell({ onClose }: NotificationBellProps) {
           }}
         >
           <div className="flex items-center gap-3">
-            <div 
-              className="w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: "var(--accent-primary)" }}
-            >
-              <Bell className="w-5 h-5 text-white" />
-            </div>
             <div>
               <h3
-                className="text-xl font-[family-name:var(--font-stetica-bold)]"
+                className="text-xl font-[family-name:var(--font-stetica-medium)]"
                 style={{ color: "var(--text-primary)" }}
               >
                 Последние уведомления

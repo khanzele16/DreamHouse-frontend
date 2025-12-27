@@ -41,7 +41,13 @@ config.interceptors.request.use(
 );
 
 config.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Handle empty responses that might cause JSON parse errors
+    if (response.data === "" || response.data === null) {
+      response.data = {};
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;

@@ -26,3 +26,24 @@ export interface ILoginResponse {
     access?: string;
     refresh?: string;
 }
+
+export interface IDeleteAccountRequest {
+    password: string;
+}
+
+export interface IDeleteAccountResponse {
+    ok: boolean;
+    CODE: "OK" | "DELETE_FAILED" | "INVALID_PASSWORD" | "SERVER_ERROR";
+    reason: string;
+}
+
+export interface IUpdateProfilePhotoRequest {
+    profile_photo: string | File;
+}
+
+export interface IUpdateProfilePhotoResponse {
+    id: number;
+    phone_number: string;
+    name: string;
+    profile_photo: string;
+}

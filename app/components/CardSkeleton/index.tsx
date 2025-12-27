@@ -1,14 +1,14 @@
 export function CardSkeleton() {
   return (
     <div
-      className="font-[family-name:var(--font-stetica-bold)] w-full rounded-2xl shadow-md overflow-hidden flex flex-col h-full animate-pulse"
+      className="font-[family-name:var(--font-stetica-bold)] w-full rounded-2xl shadow-sm overflow-hidden flex flex-col h-full animate-pulse"
       style={{
         backgroundColor: "var(--card-bg)",
         transition: "background-color 0.3s ease",
       }}
     >
       <div
-        className="relative w-full aspect-[16/10] sm:aspect-[5/3]"
+        className="relative w-full aspect-[16/9]"
         style={{
           backgroundColor: "var(--bg-secondary)",
         }}

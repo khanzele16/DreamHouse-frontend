@@ -1,171 +1,66 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { X, Mic, MicOff, Send } from "lucide-react";
-import config from "@/app/shared/config/axios";
-import { ICard } from "@/app/types/models";
 import { CardItemPreview } from "@/app/components/CardItemPreview";
-
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-}
-
-interface AIMessage {
-  id: number;
-  message: string;
-  response: string;
-  referenced_cards: ICard[];
-  tokens_used: number;
-  is_helpful: boolean | null;
-  created_at: string;
-}
+import {
+  useChatHistory,
+  useChatMessages,
+  useVoiceInput,
+  AIMessage,
+} from "./hooks";
 
 interface AIModalProps {
   onClose: () => void;
 }
 
 export function AIModal({ onClose }: AIModalProps) {
-  const [messages, setMessages] = useState<AIMessage[]>([]);
   const [inputText, setInputText] = useState("");
-  const [isListening, setIsListening] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [history, setHistory] = useState<AIMessage[]>([]);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Хуки для работы с историей и сообщениями
+  const { history, isLoadingHistory } = useChatHistory();
+  const { messages, isLoading, sendMessage } = useChatMessages();
+
+  // Хук для голосового ввода
+  const { isListening, interimText, toggleListening } = useVoiceInput({
+    onFinalText: (text) => {
+      sendMessage(text);
+      setInputText("");
+    },
+  });
+
+  // Блокируем скролл body при открытии модалки
   useEffect(() => {
-    // Блокируем скролл body при открытии модалки
-    document.body.style.overflow = 'hidden';
-
-    // Загружаем историю чатов
-    loadHistory();
-
-    // Инициализируем Web Speech API
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognitionConstructor = 
-        (window as typeof window & { 
-          webkitSpeechRecognition?: new () => SpeechRecognition;
-          SpeechRecognition?: new () => SpeechRecognition;
-        }).webkitSpeechRecognition || 
-        (window as typeof window & { 
-          webkitSpeechRecognition?: new () => SpeechRecognition;
-          SpeechRecognition?: new () => SpeechRecognition;
-        }).SpeechRecognition;
-      
-      if (SpeechRecognitionConstructor) {
-        recognitionRef.current = new SpeechRecognitionConstructor();
-        recognitionRef.current.continuous = false;
-        recognitionRef.current.interimResults = false;
-        recognitionRef.current.lang = 'ru-RU';
-
-        recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
-          const transcript = event.results[0][0].transcript;
-          setInputText(transcript);
-          setIsListening(false);
-        };
-
-        recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-          console.error('Speech recognition error:', event.error);
-          setIsListening(false);
-        };
-
-        recognitionRef.current.onend = () => {
-          setIsListening(false);
-        };
-      }
-    }
-
+    document.body.style.overflow = "hidden";
     return () => {
-      // Восстанавливаем скролл body при закрытии модалки
-      document.body.style.overflow = '';
-      
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
+      document.body.style.overflow = "";
     };
   }, []);
 
+  // Автоскролл при добавлении новых сообщений
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, history]);
 
-  const loadHistory = async () => {
-    try {
-      const response = await config.get('/cards/ai/history/');
-      setHistory(response.data);
-    } catch (error) {
-      console.error('Ошибка при загрузке истории:', error);
+  // Синхронизируем interimText с textarea только для голосового ввода
+  useEffect(() => {
+    if (isListening && interimText) {
+      setInputText(interimText);
     }
-  };
+  }, [isListening, interimText]);
 
-  const toggleListening = () => {
-    if (!recognitionRef.current) {
-      alert('Распознавание речи не поддерживается вашим браузером');
-      return;
-    }
+  // Объединяем историю (первые 5) и новые сообщения без дублей
+  const allMessages = useMemo(() => {
+    return [...history, ...messages]
+      .filter((msg, index, self) => index === self.findIndex((m) => m.id === msg.id));
+  }, [history, messages]);
 
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      recognitionRef.current.start();
-      setIsListening(true);
-    }
-  };
-
-  const sendMessage = async () => {
+  const handleSendMessage = () => {
     if (!inputText.trim() || isLoading) return;
-
-    setIsLoading(true);
-    const userMessage = inputText;
+    sendMessage(inputText);
     setInputText("");
-
-    try {
-      const response = await config.post('/cards/ai/chat/', {
-        message: userMessage,
-      });
-
-      const newMessage: AIMessage = {
-        ...response.data,
-        response: response.data.ai_response || response.data.response,
-      };
-      
-      setMessages((prevMessages) => {
-        const exists = prevMessages.some(m => m.id === newMessage.id);
-        return exists ? prevMessages : [...prevMessages, newMessage];
-      });
-      
-      await loadHistory();
-    } catch (error) {
-      console.error('Ошибка при отправке сообщения:', error);
-      alert('Не удалось отправить сообщение. Попробуйте снова.');
-    } finally {
-      setIsLoading(false);
-    }
   };
-
-  const allMessages = [...history, ...messages]
-    .filter((msg, index, self) => 
-      index === self.findIndex(m => m.id === msg.id)
-    )
-    .sort((a, b) => 
-      new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
 
   return (
     <div
@@ -248,7 +143,14 @@ export function AIModal({ onClose }: AIModalProps) {
 
         {/* Область сообщений */}
         <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
-          {allMessages.length === 0 && !isLoading && (
+          {isLoadingHistory ? (
+            <div className="text-center py-16">
+              <div className="w-12 h-12 mx-auto border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="mt-4 text-sm" style={{ color: "var(--text-secondary)" }}>
+                Загрузка истории...
+              </p>
+            </div>
+          ) : allMessages.length === 0 && !isLoading ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center shadow-xl">
                 <svg
@@ -311,7 +213,7 @@ export function AIModal({ onClose }: AIModalProps) {
                 </button>
               </div>
             </div>
-          )}
+          ) : null}
 
           {allMessages.map((msg, index) => (
             <div key={`msg-${msg.id}-${index}`} className="space-y-4">
@@ -329,35 +231,37 @@ export function AIModal({ onClose }: AIModalProps) {
               </div>
 
               {/* Ответ ИИ */}
-              <div className="flex justify-start">
-                <div className="flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[80%]">
-                  <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="sm:w-[20px] sm:h-[20px]"
+              {msg.response && (
+                <div className="flex justify-start">
+                  <div className="flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-[80%]">
+                    <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="sm:w-[20px] sm:h-[20px]"
+                      >
+                        <path d="M12 3L2 8L12 13L22 8L12 3Z" fill="white" opacity="0.9"/>
+                        <path d="M2 13L12 18L22 13" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.7"/>
+                        <path d="M2 18L12 23L22 18" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.5"/>
+                      </svg>
+                    </div>
+                    <div
+                      className="rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3 shadow-sm"
+                      style={{
+                        backgroundColor: "var(--card-bg)",
+                        border: "1px solid var(--border-color)",
+                      }}
                     >
-                      <path d="M12 3L2 8L12 13L22 8L12 3Z" fill="white" opacity="0.9"/>
-                      <path d="M2 13L12 18L22 13" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.7"/>
-                      <path d="M2 18L12 23L22 18" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.5"/>
-                    </svg>
-                  </div>
-                  <div
-                    className="rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3 shadow-sm"
-                    style={{
-                      backgroundColor: "var(--card-bg)",
-                      border: "1px solid var(--border-color)",
-                    }}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-primary)" }}>
-                      {msg.response}
-                    </p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text-primary)" }}>
+                        {msg.response}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {msg.referenced_cards && msg.referenced_cards.length > 0 && (
                 <div className="ml-8 sm:ml-11">
@@ -428,7 +332,6 @@ export function AIModal({ onClose }: AIModalProps) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Поле ввода */}
         <div
           className="p-3 sm:p-6 border-t"
           style={{ 
@@ -438,6 +341,7 @@ export function AIModal({ onClose }: AIModalProps) {
         >
           <div className="flex gap-2 sm:gap-3 items-center">
             <button
+              type="button"
               onClick={toggleListening}
               className={`p-3 sm:p-3.5 rounded-2xl transition-colors shadow-lg flex-shrink-0 ${
                 isListening
@@ -460,12 +364,12 @@ export function AIModal({ onClose }: AIModalProps) {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    sendMessage();
+                    handleSendMessage();
                   }
                 }}
                 placeholder="Опишите квартиру вашей мечты..."
                 rows={1}
-                className="w-full rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 focus:outline-none focus:ring-2 resize-none text-sm sm:text-base"
+                className="w-full rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 resize-none text-sm sm:text-base"
                 style={{
                   backgroundColor: "var(--bg-primary)",
                   color: "var(--text-primary)",
@@ -473,12 +377,14 @@ export function AIModal({ onClose }: AIModalProps) {
                   minHeight: "48px",
                   maxHeight: "120px",
                   lineHeight: "1.5",
+                  outline: "none",
                 }}
                 disabled={isLoading}
               />
             </div>
             <button
-              onClick={sendMessage}
+              type="button"
+              onClick={handleSendMessage}
               disabled={!inputText.trim() || isLoading}
               className="p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-lg flex-shrink-0"
               title="Отправить сообщение"

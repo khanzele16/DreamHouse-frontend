@@ -9,7 +9,7 @@ export function LocationAccordion({ latitude, longitude, address }: { latitude?:
     longitude >= -180 && longitude <= 180 &&
     !(latitude === 0 && longitude === 0);
   return (
-    <details open={isOpen} className="mb-4 rounded-2xl overflow-hidden shadow-sm" style={{ backgroundColor: "var(--card-bg)", border: "1px solid var(--border-color)", transition: "all 0.3s ease" }}>
+    <details open={isOpen} className="mb-4 overflow-hidden rounded-lg" style={{ backgroundColor: "rgba(var(--accent-secondary-rgb))", transition: "all 0.3s ease" }}>
       <summary 
         className="flex items-center justify-between px-6 py-4 cursor-pointer select-none font-[family-name:var(--font-stetica-bold)] text-lg"
         onClick={(e) => {
@@ -31,7 +31,7 @@ export function LocationAccordion({ latitude, longitude, address }: { latitude?:
           <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </summary>
-      <div className="w-full h-[280px] px-6 pb-6 pt-2 rounded-xl flex items-center justify-center" style={{ backgroundColor: "var(--bg-secondary)" }}>
+      <div className="w-full h-[280px] px-6 pb-6 pt-2 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(var(--accent-secondary-rgb))" }}>
         {isValid ? (
           <div className="w-full h-full rounded-xl overflow-hidden" style={{ backgroundColor: "var(--border-color)" }}>
             <div className="w-full h-full flex items-center justify-center" style={{ color: "var(--text-secondary)" }}>

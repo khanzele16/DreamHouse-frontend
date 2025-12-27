@@ -5,6 +5,7 @@ export interface IUser {
     name: string;
     phone_number: string;
     avatar?: string;
+    profile_photo?: string;
 }
 
 export interface IAuthSliceState {

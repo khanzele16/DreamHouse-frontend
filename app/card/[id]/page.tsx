@@ -1,9 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { fetchCardById, toggleFavorite } from "@/app/shared/redux/slices/cards";
+import { ICard } from "@/app/types/models";
+import { AsidePanel } from "./lib/AsidePanel";
+import { Tabs } from "@/app/card/[id]/lib/Tabs";
+import { useEffect, useState, useRef } from "react";
+import { ImageCarousel } from "./lib/ImageCarousel";
+import { CardItemPreview } from "@/app/components/CardItemPreview";
+import { FavoriteButton } from "@/app/card/[id]/lib/FavoriteButton";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { CardDetailSkeleton } from "@/app/components/CardDetailSkeleton";
 import { useAppDispatch, useAppSelector } from "@/app/shared/redux/hooks";
+import { LocationAccordion } from "@/app/card/[id]/lib/LocationAccordion";
+import { PlanningAccordion } from "@/app/card/[id]/lib/PlanningAccordion";
+import { DocumentsAccordion } from "@/app/card/[id]/lib/DocumentsAccordion";
+import { fetchCardById, toggleFavorite } from "@/app/shared/redux/slices/cards";
+import { DescriptionAccordion } from "@/app/card/[id]/lib/DescriptionAccordion";
+import { CharacteristicsAccordion } from "@/app/card/[id]/lib/CharacteristicsAccordion";
+import {
+  BackButton,
+  LocationIcon,
+  RatingAndQuestionsBlock,
+} from "@/app/card/[id]/lib/components";
 import {
   formatPrice,
   translateCategory,
@@ -12,18 +29,6 @@ import {
   translateHouseType,
   translateParking,
 } from "@/app/card/[id]/lib";
-import { BackButton, LocationIcon } from "@/app/card/[id]/lib/components";
-import { CardDetailSkeleton } from "@/app/components/CardDetailSkeleton";
-import { QuestionsBlock } from "@/app/card/[id]/lib/QuestionsBlock";
-import { Tabs } from "@/app/card/[id]/lib/Tabs";
-import { CharacteristicsAccordion } from "@/app/card/[id]/lib/CharacteristicsAccordion";
-import { LocationAccordion } from "@/app/card/[id]/lib/LocationAccordion";
-import { DescriptionAccordion } from "@/app/card/[id]/lib/DescriptionAccordion";
-import { FavoriteButton } from "@/app/card/[id]/lib/FavoriteButton";
-import { ImageCarousel } from "./lib/ImageCarousel";
-import { AsidePanel } from "./lib/AsidePanel";
-import { ICard, IDocument } from "@/app/types/models";
-import { CardItemPreview } from "@/app/components/CardItemPreview";
 
 export default function CardDetailPage() {
   const params = useParams();
@@ -55,12 +60,6 @@ export default function CardDetailPage() {
           onClick={() => router.push("/")}
           className="px-6 py-2 rounded-lg transition-colors cursor-pointer"
           style={{ backgroundColor: "var(--accent-primary)", color: "white" }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = "var(--accent-secondary)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "var(--accent-primary)")
-          }
         >
           Вернуться на главную
         </button>
@@ -82,32 +81,26 @@ export default function CardDetailPage() {
   }
 
   const formattedPrice = formatPrice(currentCard.price);
-  const recommendations = currentCard.list_curations || currentCard.recommendations || [];
+  const recommendations =
+    currentCard.list_curations || currentCard.recommendations || [];
 
   return (
-    <div
-      className="min-h-screen p-6"
-      style={{
-        backgroundColor: "var(--bg-primary)",
-        transition: "background-color 0.3s ease",
-      }}
-    >
+    <div className="min-h-screen p-6" style={{}}>
       <div className="max-w-[1300px] mx-auto">
         <BackButton onClick={() => router.back()} />
       </div>
       <div className="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div
-            className="rounded-2xl overflow-hidden shadow-md"
+            className="rounded-2xl overflow-hidden"
             style={{
-              backgroundColor: "var(--card-bg)",
               transition: "background-color 0.3s ease",
             }}
           >
-            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 p-6 lg:p-8">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 pb-5 lg:pb-5">
               <div>
                 <h1
-                  className="text-3xl lg:text-4xl font-semibold"
+                  className="text-2xl sm:text-3xl lg:text-4xl font-[family-name:var(--font-stetica-bold)]"
                   style={{
                     color: "var(--text-primary)",
                     transition: "color 0.3s ease",
@@ -116,14 +109,14 @@ export default function CardDetailPage() {
                   {currentCard.title}
                 </h1>
                 <div
-                  className="flex items-center gap-2 mt-3"
+                  className="flex items-center gap-2 mt-1 font-[family-name:var(--font-stetica-regular)]"
                   style={{
                     color: "var(--text-secondary)",
                     transition: "color 0.3s ease",
                   }}
                 >
                   <LocationIcon />
-                  <p className="text-lg">{currentCard.address}</p>
+                  <p className="text-sm sm:text-base lg:text-lg">{currentCard.address}</p>
                 </div>
               </div>
             </div>
@@ -140,7 +133,7 @@ export default function CardDetailPage() {
       {recommendations.length > 0 && (
         <div className="max-w-[1300px] mx-auto mt-8">
           <h2
-            className="text-2xl font-[family-name:var(--font-stetica-bold)] mb-6"
+            className="text-xl sm:text-2xl font-[family-name:var(--font-stetica-bold)] mb-6"
             style={{ color: "var(--text-primary)" }}
           >
             Подборка для вас
@@ -159,7 +152,11 @@ export default function CardDetailPage() {
 function CardBottomSection({ card }: { card: ICard }) {
   const dispatch = useAppDispatch();
   const { isAuth } = useAppSelector((state) => state.auth);
-  const [tab, setTab] = useState("characteristics");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get("tab");
+  const [tab, setTab] = useState(tabFromUrl || "characteristics");
+  const tabsRef = useRef<HTMLDivElement>(null);
   const questions = card.questions || [];
   const left = [
     { label: "Город", value: translateCity(card.city) },
@@ -171,30 +168,54 @@ function CardBottomSection({ card }: { card: ICard }) {
     { label: "Категория", value: translateCategory(card.category) },
     { label: "Количество комнат", value: card.rooms ?? "Не указано" },
     { label: "Этажей в доме", value: card.floors_total ?? "Не указано" },
-  ];
-  const right = [
-    { label: "Лифт", value: translateElevator(card.elevator) },
-    { label: "Парковка", value: translateParking(card.parking) },
-    { label: "Ремонт", value: card.renovation ?? "Не указано" },
-    { label: "Балкон или лоджия", value: card.balcony ? "Балкон" : "Нет" },
     {
       label: "Высота потолков",
       value: card.ceiling_height ? `${card.ceiling_height} м` : "Не указано",
     },
   ];
+  const right = [
+    { label: "Лифт", value: translateElevator(card.elevator) },
+    { label: "Парковка", value: translateParking(card.parking) },
+    { label: "Ремонт", value: card.renovation ?? "Не указано" },
+    {
+      label: "Балкон или лоджия",
+      value: card.balcony ? "Балкон" : "Нет",
+    },
+  ];
+
   const documents = card.documents || [];
   const description = card.description;
   const { latitude, longitude, address } = card;
   const [isFavorite, setIsFavorite] = useState(Boolean(card.is_favorite));
-  
+
+  // Синхронизация таба с URL при монтировании и изменении URL
+  useEffect(() => {
+    if (tabFromUrl && tabFromUrl !== tab) {
+      setTab(tabFromUrl);
+      if (tabsRef.current) {
+        tabsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tabFromUrl]);
+
+  const handleTabChange = (newTab: string) => {
+    setTab(newTab);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", newTab);
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   const handleToggleFavorite = async () => {
     if (!isAuth) {
       alert("Войдите в систему, чтобы добавить в избранное");
       return;
     }
-    
+
     try {
-      await dispatch(toggleFavorite({ id: card.id, is_favorite: isFavorite })).unwrap();
+      await dispatch(
+        toggleFavorite({ id: card.id, is_favorite: isFavorite })
+      ).unwrap();
       setIsFavorite((prev) => !prev);
     } catch (error) {
       console.error("Ошибка при добавлении в избранное:", error);
@@ -203,81 +224,76 @@ function CardBottomSection({ card }: { card: ICard }) {
   };
 
   return (
-    <div className="px-4 sm:px-6 pb-8 pt-4">
-      <QuestionsBlock questions={questions} />
-      <Tabs
-        active={tab}
-        onChange={setTab}
-        tabs={[
-          { key: "characteristics", label: "Характеристики" },
-          { key: "documents", label: "Документы" },
-          { key: "planning", label: "Планирование" },
-        ]}
+    <div className="pb-2 pt-4">
+      <RatingAndQuestionsBlock
+        rating={card.rating}
+        count={card.rating_count}
+        onNavigateToReviews={() => handleTabChange("reviews")}
+        onNavigateToQuestions={() => handleTabChange("questions")}
       />
+      <div ref={tabsRef}>
+        <Tabs
+          active={tab}
+          onChange={handleTabChange}
+          tabs={[
+            { key: "characteristics", label: "Характеристики" },
+            { key: "documents", label: "Документы" },
+            { key: "planning", label: "Планирование" },
+            { key: "reviews", label: "Отзывы" },
+            { key: "questions", label: "Вопросы" },
+          ]}
+        />
+      </div>
       {tab === "characteristics" && (
         <CharacteristicsAccordion left={left} right={right} />
       )}
-      {tab === "documents" && (
+      {tab === "documents" && <DocumentsAccordion documents={documents} />}
+      {tab === "planning" && <PlanningAccordion />}
+      {tab === "reviews" && (
         <div
-          className="mb-4 rounded-2xl shadow-sm px-4 py-3 pb-0"
+          className="mb-4 rounded-lg p-6 text-center"
           style={{
-            backgroundColor: "var(--card-bg)",
-            border: "1px solid var(--border-color)",
+            backgroundColor: "rgba(var(--accent-secondary-rgb))",
+            color: "var(--text-secondary)",
           }}
         >
-          {documents.length > 0 ? (
-            <ul className="space-y-3">
-              {documents.map((doc: IDocument, i: number) => (
+          Отзывы пока отсутствуют
+        </div>
+      )}
+      {tab === "questions" && (
+        <div
+          className="mb-4 rounded-lg p-6"
+          style={{
+            backgroundColor: "rgba(var(--accent-secondary-rgb))",
+          }}
+        >
+          {questions && questions.length > 0 ? (
+            <ul className="space-y-4">
+              {questions.map((question, i) => (
                 <li
                   key={i}
-                  className="flex items-center justify-between pb-3"
+                  className="p-4 rounded-lg"
                   style={{
-                    borderBottom:
-                      i < documents.length - 1
-                        ? "1px solid var(--border-color)"
-                        : "none",
+                    backgroundColor: "rgba(var(--bg-secondary-rgb), 0.3)",
                   }}
                 >
-                  <a
-                    href={doc.file}
-                    download
-                    className="font-medium hover:underline"
-                    style={{ color: "var(--accent-primary)" }}
-                    aria-label={`Скачать ${doc.title}`}
+                  <p
+                    className="text-base font-[family-name:var(--font-stetica-medium)]"
+                    style={{ color: "var(--text-primary)" }}
                   >
-                    {doc.title}
-                  </a>
-                  {doc.uploaded_at && (
-                    <span
-                      className="text-xs"
-                      style={{ color: "var(--text-secondary)" }}
-                    >
-                      {new Date(doc.uploaded_at).toLocaleDateString()}
-                    </span>
-                  )}
+                    {question}
+                  </p>
                 </li>
               ))}
             </ul>
           ) : (
-            <span
-              className="text-center block"
+            <p
+              className="text-center py-4 text-base"
               style={{ color: "var(--text-secondary)" }}
             >
-              Документы отсутствуют
-            </span>
+              Вопросы пока отсутствуют
+            </p>
           )}
-        </div>
-      )}
-      {tab === "planning" && (
-        <div
-          className="mb-4 rounded-2xl shadow-sm p-6 text-center"
-          style={{
-            backgroundColor: "var(--card-bg)",
-            border: "1px solid var(--border-color)",
-            color: "var(--text-secondary)",
-          }}
-        >
-          Планирование не указано
         </div>
       )}
       <LocationAccordion
@@ -286,7 +302,7 @@ function CardBottomSection({ card }: { card: ICard }) {
         address={address}
       />
       <DescriptionAccordion description={description} />
-      <div className="my-6">
+      <div className="mt-6">
         <FavoriteButton
           isFavorite={isFavorite}
           onToggle={handleToggleFavorite}
